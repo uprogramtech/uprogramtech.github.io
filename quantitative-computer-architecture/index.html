@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Lab 1 - Quantitative Performance Simulator</title>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Lab 1 - Quantitative Performance Simulator
+</title>
+
+<!-- JSZip for combined download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
 
@@ -59,14 +69,10 @@ h3 {
     color: #274e75;
 }
 
-.formula {
-    background: #f8fafc;
-    border: 1px solid #dbe2ea;
-    border-radius: 8px;
-    padding: 18px;
-    text-align: center;
-    font-family: Georgia, serif;
-    font-size: 20px;
+.info {
+    background: #eef4fb;
+    border-left: 5px solid #17365d;
+    padding: 15px 20px;
     margin: 15px 0;
 }
 
@@ -93,13 +99,14 @@ input {
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     font-size: 16px;
+    margin-bottom: 12px;
 }
 
 button {
     background: #17365d;
     color: white;
     border: none;
-    padding: 11px 18px;
+    padding: 12px 20px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 15px;
@@ -109,6 +116,14 @@ button {
 
 button:hover {
     background: #0f2745;
+}
+
+.download {
+    background: #2f6f4e;
+}
+
+.download:hover {
+    background: #24583e;
 }
 
 .secondary {
@@ -166,17 +181,24 @@ tr:nth-child(even) {
 
 canvas {
     width: 100%;
-    height: 350px;
+    height: 400px;
     margin-top: 20px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
+    background: white;
 }
 
-.info {
-    background: #eef4fb;
-    border-left: 5px solid #17365d;
-    padding: 15px 20px;
-    margin: 15px 0;
+.export-box {
+    background: #eef7f1;
+    border: 2px solid #2f6f4e;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+}
+
+.export-box h2 {
+    color: #2f6f4e;
+    border-bottom: none;
 }
 
 footer {
@@ -223,7 +245,9 @@ Lab 1 — Quantitative Performance Simulator
 <div class="container">
 
 
-<!-- CPU PERFORMANCE -->
+<!-- =========================================
+     BASIC CPU CALCULATOR
+========================================= -->
 
 <section class="card">
 
@@ -233,8 +257,10 @@ CPU Performance Calculator
 
 <div class="info">
 
+<strong>
 CPU Time =
 (Instruction Count × CPI) / Clock Rate
+</strong>
 
 </div>
 
@@ -362,27 +388,23 @@ id="performance"
 </section>
 
 
-<!-- CLOCK RATE -->
+<!-- =========================================
+     EXPERIMENT 1
+========================================= -->
 
 <section class="card">
 
 <h2>
-Experiment 1 — Clock Rate
+Experiment 1 — Effect of Clock Rate
 </h2>
 
 <p>
-Run the experiment using the clock rates below.
+Investigate the relationship between clock rate and
+CPU execution time.
 </p>
 
 <button onclick="runClockExperiment()">
 Run Experiment
-</button>
-
-<button
-class="secondary"
-onclick="downloadClockCSV()"
->
-Download CSV
 </button>
 
 <table>
@@ -418,7 +440,9 @@ Relative Performance
 </section>
 
 
-<!-- CPI -->
+<!-- =========================================
+     EXPERIMENT 2
+========================================= -->
 
 <section class="card">
 
@@ -426,15 +450,13 @@ Relative Performance
 Experiment 2 — CPI and IPC
 </h2>
 
+<p>
+Investigate the relationship between CPI, IPC, and
+CPU execution time.
+</p>
+
 <button onclick="runCPIExperiment()">
 Run Experiment
-</button>
-
-<button
-class="secondary"
-onclick="downloadCPICSV()"
->
-Download CSV
 </button>
 
 <table>
@@ -470,7 +492,9 @@ IPC
 </section>
 
 
-<!-- PROCESSOR COMPARISON -->
+<!-- =========================================
+     EXPERIMENT 3
+========================================= -->
 
 <section class="card">
 
@@ -544,18 +568,17 @@ step="0.1"
 </div>
 
 <button onclick="compareProcessors()">
-Compare
+Compare Processors
 </button>
 
-<div
-id="processorResults"
->
-</div>
+<div id="processorResults"></div>
 
 </section>
 
 
-<!-- AMDAHL -->
+<!-- =========================================
+     EXPERIMENT 4
+========================================= -->
 
 <section class="card">
 
@@ -565,8 +588,10 @@ Experiment 4 — Amdahl's Law
 
 <div class="info">
 
+<strong>
 Overall Speedup =
 1 / ((1 − F) + (F / S))
+</strong>
 
 </div>
 
@@ -588,33 +613,10 @@ max="100"
 
 </div>
 
-<div class="control-group">
-
-<label>
-Component Speedup
-</label>
-
-<input
-id="componentSpeedup"
-type="number"
-value="2"
-min="1"
-step="0.5"
->
-
-</div>
-
 </div>
 
 <button onclick="runAmdahlExperiment()">
 Run Experiment
-</button>
-
-<button
-class="secondary"
-onclick="downloadAmdahlCSV()"
->
-Download CSV
 </button>
 
 <table>
@@ -646,7 +648,9 @@ Overall Speedup
 </section>
 
 
-<!-- ARCHITECT CHALLENGE -->
+<!-- =========================================
+     EXPERIMENT 5
+========================================= -->
 
 <section class="card">
 
@@ -655,16 +659,20 @@ Experiment 5 — Architect's Challenge
 </h2>
 
 <p>
-Use the simulator results to compare the three architectural
-improvements described in the Canvas instructions.
+Compare three architectural improvements and determine
+which produces the greatest overall performance improvement.
 </p>
+
+<button onclick="calculateChallenge()">
+Calculate Options
+</button>
 
 <div class="results">
 
 <div class="result-box">
 
 <div class="result-label">
-Option A
+Option A — Clock Rate
 </div>
 
 <div
@@ -679,7 +687,7 @@ id="optionA"
 <div class="result-box">
 
 <div class="result-label">
-Option B
+Option B — CPI
 </div>
 
 <div
@@ -694,7 +702,7 @@ id="optionB"
 <div class="result-box">
 
 <div class="result-label">
-Option C
+Option C — Amdahl
 </div>
 
 <div
@@ -708,8 +716,77 @@ id="optionC"
 
 </div>
 
-<button onclick="calculateChallenge()">
-Calculate Options
+</section>
+
+
+<!-- =========================================
+     EXPORT
+========================================= -->
+
+<section class="card export-box">
+
+<h2>
+Export Lab Results
+</h2>
+
+<p>
+
+When you have completed all experiments,
+click the button below.
+
+</p>
+
+<p>
+
+The simulator will generate a ZIP file containing:
+
+</p>
+
+<ul style="text-align:left; max-width:500px; margin:auto;">
+
+<li>
+Complete experimental results
+</li>
+
+<li>
+Clock Rate graph
+</li>
+
+<li>
+CPI graph
+</li>
+
+<li>
+Amdahl's Law graph
+</li>
+
+<li>
+Processor comparison
+</li>
+
+<li>
+Architect's Challenge results
+</li>
+
+<li>
+Simulation parameters
+</li>
+
+<li>
+Timestamp
+</li>
+
+</ul>
+
+<br>
+
+<button
+class="download"
+onclick="exportLabResults()"
+>
+
+⬇ Export Complete Lab Results
+
 </button>
 
 </section>
@@ -729,51 +806,44 @@ Lab 1 — Quantitative Performance Simulator
 
 <script>
 
-/* -----------------------------
-   Utility Functions
------------------------------ */
+/* =====================================================
+   GLOBAL DATA
+===================================================== */
 
-function cpuTime(instructions, cpi, clockGHz) {
+let clockData = [];
+
+let cpiData = [];
+
+let amdahlData = [];
+
+let processorComparison = {};
+
+let challengeResults = {};
+
+
+/* =====================================================
+   CPU TIME
+===================================================== */
+
+function cpuTime(
+    instructions,
+    cpi,
+    clockGHz
+) {
 
     return (
         instructions * cpi
-    ) / (
+    ) /
+    (
         clockGHz * 1e9
     );
 
 }
 
 
-function downloadCSV(filename, rows) {
-
-    const csv = rows
-        .map(row => row.join(","))
-        .join("\n");
-
-    const blob = new Blob(
-        [csv],
-        { type: "text/csv" }
-    );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const a =
-        document.createElement("a");
-
-    a.href = url;
-    a.download = filename;
-
-    a.click();
-
-    URL.revokeObjectURL(url);
-
-}
-
-
-/* -----------------------------
-   Main Calculator
------------------------------ */
+/* =====================================================
+   BASIC CALCULATOR
+===================================================== */
 
 function updateCalculator() {
 
@@ -834,11 +904,9 @@ function updateCalculator() {
 }
 
 
-/* -----------------------------
-   Experiment 1
------------------------------ */
-
-let clockData = [];
+/* =====================================================
+   EXPERIMENT 1
+===================================================== */
 
 function runClockExperiment() {
 
@@ -882,18 +950,30 @@ function runClockExperiment() {
         const relative =
             baseline / time;
 
-        clockData.push([
-            rate,
-            time,
-            relative
-        ]);
+        clockData.push({
+            clockRate: rate,
+            cpuTime: time,
+            relativePerformance: relative
+        });
 
         html += `
-            <tr>
-                <td>${rate}</td>
-                <td>${time.toFixed(4)}</td>
-                <td>${relative.toFixed(3)}×</td>
-            </tr>
+
+        <tr>
+
+            <td>
+                ${rate}
+            </td>
+
+            <td>
+                ${time.toFixed(4)}
+            </td>
+
+            <td>
+                ${relative.toFixed(3)}×
+            </td>
+
+        </tr>
+
         `;
 
     });
@@ -905,7 +985,9 @@ function runClockExperiment() {
     drawChart(
         "clockChart",
         rates,
-        clockData.map(x => x[1]),
+        clockData.map(
+            x => x.cpuTime
+        ),
         "Clock Rate (GHz)",
         "CPU Time (seconds)"
     );
@@ -913,30 +995,9 @@ function runClockExperiment() {
 }
 
 
-function downloadClockCSV() {
-
-    const rows = [
-        [
-            "Clock Rate (GHz)",
-            "CPU Time (s)",
-            "Relative Performance"
-        ],
-        ...clockData
-    ];
-
-    downloadCSV(
-        "lab1_clock_rate_results.csv",
-        rows
-    );
-
-}
-
-
-/* -----------------------------
-   Experiment 2
------------------------------ */
-
-let cpiData = [];
+/* =====================================================
+   EXPERIMENT 2
+===================================================== */
 
 function runCPIExperiment() {
 
@@ -973,18 +1034,30 @@ function runCPIExperiment() {
         const ipc =
             1 / cpi;
 
-        cpiData.push([
-            cpi,
-            time,
-            ipc
-        ]);
+        cpiData.push({
+            cpi: cpi,
+            cpuTime: time,
+            ipc: ipc
+        });
 
         html += `
-            <tr>
-                <td>${cpi}</td>
-                <td>${time.toFixed(4)}</td>
-                <td>${ipc.toFixed(3)}</td>
-            </tr>
+
+        <tr>
+
+            <td>
+                ${cpi}
+            </td>
+
+            <td>
+                ${time.toFixed(4)}
+            </td>
+
+            <td>
+                ${ipc.toFixed(3)}
+            </td>
+
+        </tr>
+
         `;
 
     });
@@ -996,7 +1069,9 @@ function runCPIExperiment() {
     drawChart(
         "cpiChart",
         cpis,
-        cpiData.map(x => x[1]),
+        cpiData.map(
+            x => x.cpuTime
+        ),
         "CPI",
         "CPU Time (seconds)"
     );
@@ -1004,28 +1079,9 @@ function runCPIExperiment() {
 }
 
 
-function downloadCPICSV() {
-
-    const rows = [
-        [
-            "CPI",
-            "CPU Time (s)",
-            "IPC"
-        ],
-        ...cpiData
-    ];
-
-    downloadCSV(
-        "lab1_cpi_results.csv",
-        rows
-    );
-
-}
-
-
-/* -----------------------------
-   Experiment 3
------------------------------ */
+/* =====================================================
+   EXPERIMENT 3
+===================================================== */
 
 function compareProcessors() {
 
@@ -1079,8 +1135,32 @@ function compareProcessors() {
         );
 
     const speedup =
-        Math.max(timeA, timeB) /
-        Math.min(timeA, timeB);
+        Math.max(
+            timeA,
+            timeB
+        ) /
+        Math.min(
+            timeA,
+            timeB
+        );
+
+    processorComparison = {
+
+        processorA: {
+            clockRate: aClock,
+            cpi: aCpi,
+            cpuTime: timeA
+        },
+
+        processorB: {
+            clockRate: bClock,
+            cpi: bCpi,
+            cpuTime: timeB
+        },
+
+        speedup: speedup
+
+    };
 
     let faster;
 
@@ -1089,12 +1169,16 @@ function compareProcessors() {
         faster =
             "Processor A is faster.";
 
-    } else if (timeB < timeA) {
+    }
+
+    else if (timeB < timeA) {
 
         faster =
             "Processor B is faster.";
 
-    } else {
+    }
+
+    else {
 
         faster =
             "Both processors have equal execution time.";
@@ -1108,46 +1192,90 @@ function compareProcessors() {
         <table>
 
         <tr>
+
             <th></th>
-            <th>Processor A</th>
-            <th>Processor B</th>
+
+            <th>
+                Processor A
+            </th>
+
+            <th>
+                Processor B
+            </th>
+
         </tr>
 
         <tr>
-            <td>Clock Rate</td>
-            <td>${aClock} GHz</td>
-            <td>${bClock} GHz</td>
+
+            <td>
+                Clock Rate
+            </td>
+
+            <td>
+                ${aClock} GHz
+            </td>
+
+            <td>
+                ${bClock} GHz
+            </td>
+
         </tr>
 
         <tr>
-            <td>CPI</td>
-            <td>${aCpi}</td>
-            <td>${bCpi}</td>
+
+            <td>
+                CPI
+            </td>
+
+            <td>
+                ${aCpi}
+            </td>
+
+            <td>
+                ${bCpi}
+            </td>
+
         </tr>
 
         <tr>
-            <td>CPU Time</td>
-            <td>${timeA.toFixed(4)} s</td>
-            <td>${timeB.toFixed(4)} s</td>
+
+            <td>
+                CPU Time
+            </td>
+
+            <td>
+                ${timeA.toFixed(4)} s
+            </td>
+
+            <td>
+                ${timeB.toFixed(4)} s
+            </td>
+
         </tr>
 
         </table>
 
         <div class="info">
-            <strong>${faster}</strong><br>
+
+            <strong>
+                ${faster}
+            </strong>
+
+            <br><br>
+
             Performance difference:
             ${speedup.toFixed(3)}×
+
         </div>
+
     `;
 
 }
 
 
-/* -----------------------------
-   Experiment 4
------------------------------ */
-
-let amdahlData = [];
+/* =====================================================
+   EXPERIMENT 4 — AMDAHL
+===================================================== */
 
 function runAmdahlExperiment() {
 
@@ -1174,16 +1302,30 @@ function runAmdahlExperiment() {
                 (fraction / speed)
             );
 
-        amdahlData.push([
-            speed,
-            overall
-        ]);
+        amdahlData.push({
+
+            componentSpeedup:
+                speed,
+
+            overallSpeedup:
+                overall
+
+        });
 
         html += `
-            <tr>
-                <td>${speed}×</td>
-                <td>${overall.toFixed(4)}×</td>
-            </tr>
+
+        <tr>
+
+            <td>
+                ${speed}×
+            </td>
+
+            <td>
+                ${overall.toFixed(4)}×
+            </td>
+
+        </tr>
+
         `;
 
     });
@@ -1195,7 +1337,9 @@ function runAmdahlExperiment() {
     drawChart(
         "amdahlChart",
         speeds,
-        amdahlData.map(x => x[1]),
+        amdahlData.map(
+            x => x.overallSpeedup
+        ),
         "Component Speedup",
         "Overall Speedup"
     );
@@ -1203,44 +1347,11 @@ function runAmdahlExperiment() {
 }
 
 
-function downloadAmdahlCSV() {
-
-    const rows = [
-        [
-            "Component Speedup",
-            "Overall Speedup"
-        ],
-        ...amdahlData
-    ];
-
-    downloadCSV(
-        "lab1_amdahl_results.csv",
-        rows
-    );
-
-}
-
-
-/* -----------------------------
-   Architect Challenge
------------------------------ */
+/* =====================================================
+   EXPERIMENT 5
+===================================================== */
 
 function calculateChallenge() {
-
-    /*
-        Baseline:
-        3 GHz
-        CPI = 1.5
-
-        A:
-        4 GHz / 3 GHz
-
-        B:
-        1.5 / 1.1
-
-        C:
-        50% improved by 5x
-    */
 
     const optionA =
         4 / 3;
@@ -1254,6 +1365,19 @@ function calculateChallenge() {
             0.5 +
             (0.5 / 5)
         );
+
+    challengeResults = {
+
+        optionAClockRate:
+            optionA,
+
+        optionBCPI:
+            optionB,
+
+        optionCAmdahl:
+            optionC
+
+    };
 
     document.getElementById(
         "optionA"
@@ -1273,9 +1397,9 @@ function calculateChallenge() {
 }
 
 
-/* -----------------------------
-   Simple Canvas Charts
------------------------------ */
+/* =====================================================
+   GRAPH GENERATOR
+===================================================== */
 
 function drawChart(
     canvasId,
@@ -1291,15 +1415,33 @@ function drawChart(
         );
 
     const ctx =
-        canvas.getContext("2d");
+        canvas.getContext(
+            "2d"
+        );
+
+    const ratio =
+        window.devicePixelRatio || 1;
 
     const width =
-        canvas.width =
-            canvas.clientWidth * 2;
+        canvas.clientWidth;
 
     const height =
-        canvas.height =
-            canvas.clientHeight * 2;
+        canvas.clientHeight;
+
+    canvas.width =
+        width * ratio;
+
+    canvas.height =
+        height * ratio;
+
+    ctx.setTransform(
+        ratio,
+        0,
+        0,
+        ratio,
+        0,
+        0
+    );
 
     ctx.clearRect(
         0,
@@ -1308,20 +1450,23 @@ function drawChart(
         height
     );
 
-    ctx.font = "28px Arial";
-
-    const margin = 100;
+    const margin = 70;
 
     const plotWidth =
-        width - margin * 1.5;
+        width -
+        margin * 1.5;
 
     const plotHeight =
-        height - margin * 1.5;
+        height -
+        margin * 1.5;
 
     const maxY =
-        Math.max(...yValues) * 1.1;
+        Math.max(
+            ...yValues
+        ) * 1.15;
 
-    const minY = 0;
+    ctx.font =
+        "14px Arial";
 
     /* Axes */
 
@@ -1329,7 +1474,7 @@ function drawChart(
 
     ctx.moveTo(
         margin,
-        margin
+        30
     );
 
     ctx.lineTo(
@@ -1338,13 +1483,13 @@ function drawChart(
     );
 
     ctx.lineTo(
-        width - margin / 2,
+        width - 30,
         height - margin
     );
 
     ctx.stroke();
 
-    /* Data */
+    /* Data line */
 
     ctx.beginPath();
 
@@ -1355,7 +1500,10 @@ function drawChart(
                 margin +
                 (
                     index /
-                    (xValues.length - 1)
+                    Math.max(
+                        xValues.length - 1,
+                        1
+                    )
                 ) *
                 plotWidth;
 
@@ -1363,19 +1511,23 @@ function drawChart(
                 height -
                 margin -
                 (
-                    (value - minY) /
-                    (maxY - minY)
+                    value /
+                    maxY
                 ) *
                 plotHeight;
 
-            if (index === 0) {
+            if (
+                index === 0
+            ) {
 
                 ctx.moveTo(
                     x,
                     y
                 );
 
-            } else {
+            }
+
+            else {
 
                 ctx.lineTo(
                     x,
@@ -1389,7 +1541,7 @@ function drawChart(
 
     ctx.stroke();
 
-    /* Points */
+    /* Data points */
 
     yValues.forEach(
         (value, index) => {
@@ -1398,7 +1550,10 @@ function drawChart(
                 margin +
                 (
                     index /
-                    (xValues.length - 1)
+                    Math.max(
+                        xValues.length - 1,
+                        1
+                    )
                 ) *
                 plotWidth;
 
@@ -1416,7 +1571,7 @@ function drawChart(
             ctx.arc(
                 x,
                 y,
-                7,
+                5,
                 0,
                 Math.PI * 2
             );
@@ -1425,25 +1580,36 @@ function drawChart(
 
             ctx.fillText(
                 value.toFixed(2),
-                x - 20,
-                y - 15
+                x - 15,
+                y - 10
+            );
+
+            ctx.fillText(
+                xValues[index],
+                x - 10,
+                height -
+                margin +
+                25
             );
 
         }
     );
 
-    /* Labels */
+    /* Axis labels */
+
+    ctx.font =
+        "bold 15px Arial";
 
     ctx.fillText(
         xLabel,
-        width / 2 - 80,
-        height - 20
+        width / 2 - 60,
+        height - 10
     );
 
     ctx.save();
 
     ctx.translate(
-        25,
+        18,
         height / 2
     );
 
@@ -1462,24 +1628,456 @@ function drawChart(
 }
 
 
+/* =====================================================
+   EXPORT FUNCTION
+===================================================== */
+
+async function exportLabResults() {
+
+    /* Make sure experiments have been run */
+
+    if (
+        clockData.length === 0
+    ) {
+
+        runClockExperiment();
+
+    }
+
+    if (
+        cpiData.length === 0
+    ) {
+
+        runCPIExperiment();
+
+    }
+
+    if (
+        amdahlData.length === 0
+    ) {
+
+        runAmdahlExperiment();
+
+    }
+
+    if (
+        Object.keys(
+            processorComparison
+        ).length === 0
+    ) {
+
+        compareProcessors();
+
+    }
+
+    if (
+        Object.keys(
+            challengeResults
+        ).length === 0
+    ) {
+
+        calculateChallenge();
+
+    }
+
+
+    const zip =
+        new JSZip();
+
+
+    /* ==========================================
+       CSV DATA
+    ========================================== */
+
+    let csv =
+        "LAB 1 - QUANTITATIVE PERFORMANCE ANALYSIS\n\n";
+
+
+    csv +=
+        "GENERAL SIMULATION PARAMETERS\n";
+
+    csv +=
+        "Instruction Count," +
+        document.getElementById(
+            "instructionCount"
+        ).value +
+        "\n";
+
+    csv +=
+        "Clock Rate (GHz)," +
+        document.getElementById(
+            "clockRate"
+        ).value +
+        "\n";
+
+    csv +=
+        "CPI," +
+        document.getElementById(
+            "cpi"
+        ).value +
+        "\n\n";
+
+
+    /* Experiment 1 */
+
+    csv +=
+        "EXPERIMENT 1 - CLOCK RATE\n";
+
+    csv +=
+        "Clock Rate (GHz),CPU Time (s),Relative Performance\n";
+
+    clockData.forEach(row => {
+
+        csv +=
+            row.clockRate +
+            "," +
+            row.cpuTime +
+            "," +
+            row.relativePerformance +
+            "\n";
+
+    });
+
+
+    csv += "\n";
+
+
+    /* Experiment 2 */
+
+    csv +=
+        "EXPERIMENT 2 - CPI AND IPC\n";
+
+    csv +=
+        "CPI,CPU Time (s),IPC\n";
+
+    cpiData.forEach(row => {
+
+        csv +=
+            row.cpi +
+            "," +
+            row.cpuTime +
+            "," +
+            row.ipc +
+            "\n";
+
+    });
+
+
+    csv += "\n";
+
+
+    /* Experiment 3 */
+
+    csv +=
+        "EXPERIMENT 3 - PROCESSOR COMPARISON\n";
+
+    csv +=
+        "Processor,Clock Rate (GHz),CPI,CPU Time (s)\n";
+
+    csv +=
+        "A," +
+        processorComparison.processorA.clockRate +
+        "," +
+        processorComparison.processorA.cpi +
+        "," +
+        processorComparison.processorA.cpuTime +
+        "\n";
+
+    csv +=
+        "B," +
+        processorComparison.processorB.clockRate +
+        "," +
+        processorComparison.processorB.cpi +
+        "," +
+        processorComparison.processorB.cpuTime +
+        "\n";
+
+    csv +=
+        "Performance Difference," +
+        processorComparison.speedup +
+        "\n\n";
+
+
+    /* Experiment 4 */
+
+    csv +=
+        "EXPERIMENT 4 - AMDAHL'S LAW\n";
+
+    csv +=
+        "Component Speedup,Overall Speedup\n";
+
+    amdahlData.forEach(row => {
+
+        csv +=
+            row.componentSpeedup +
+            "," +
+            row.overallSpeedup +
+            "\n";
+
+    });
+
+
+    csv += "\n";
+
+
+    /* Experiment 5 */
+
+    csv +=
+        "EXPERIMENT 5 - ARCHITECT'S CHALLENGE\n";
+
+    csv +=
+        "Option,Speedup\n";
+
+    csv +=
+        "Option A - Clock Rate," +
+        challengeResults.optionAClockRate +
+        "\n";
+
+    csv +=
+        "Option B - CPI," +
+        challengeResults.optionBCPI +
+        "\n";
+
+    csv +=
+        "Option C - Amdahl," +
+        challengeResults.optionCAmdahl +
+        "\n";
+
+
+    /* Add CSV */
+
+    zip.file(
+        "Lab1_Results.csv",
+        csv
+    );
+
+
+    /* ==========================================
+       GRAPHS
+    ========================================== */
+
+    const graphs = [
+
+        {
+            id: "clockChart",
+            filename:
+                "Clock_Rate_Graph.png"
+        },
+
+        {
+            id: "cpiChart",
+            filename:
+                "CPI_Graph.png"
+        },
+
+        {
+            id: "amdahlChart",
+            filename:
+                "Amdahl_Graph.png"
+        }
+
+    ];
+
+
+    for (
+        const graph of graphs
+    ) {
+
+        const canvas =
+            document.getElementById(
+                graph.id
+            );
+
+        const image =
+            canvas.toDataURL(
+                "image/png"
+            );
+
+        const base64 =
+            image.split(
+                ","
+            )[1];
+
+        zip.file(
+            graph.filename,
+            base64,
+            {
+                base64: true
+            }
+        );
+
+    }
+
+
+    /* ==========================================
+       SUMMARY FILE
+    ========================================== */
+
+    const timestamp =
+        new Date()
+        .toLocaleString();
+
+
+    const summary = `
+
+QUANTITATIVE COMPUTER ARCHITECTURE
+
+LAB 1
+QUANTITATIVE PERFORMANCE ANALYSIS
+
+Simulation Results Summary
+--------------------------------------------
+
+Generated:
+${timestamp}
+
+Instruction Count:
+${document.getElementById("instructionCount").value}
+
+Clock Rate:
+${document.getElementById("clockRate").value} GHz
+
+CPI:
+${document.getElementById("cpi").value}
+
+
+EXPERIMENT 3
+Processor Comparison
+--------------------------------------------
+
+Processor A:
+Clock Rate:
+${processorComparison.processorA.clockRate} GHz
+
+CPI:
+${processorComparison.processorA.cpi}
+
+CPU Time:
+${processorComparison.processorA.cpuTime.toFixed(6)} s
+
+
+Processor B:
+Clock Rate:
+${processorComparison.processorB.clockRate} GHz
+
+CPI:
+${processorComparison.processorB.cpi}
+
+CPU Time:
+${processorComparison.processorB.cpuTime.toFixed(6)} s
+
+
+Performance Difference:
+${processorComparison.speedup.toFixed(4)}×
+
+
+ARCHITECT'S CHALLENGE
+--------------------------------------------
+
+Option A - Increase Clock Rate:
+${challengeResults.optionAClockRate.toFixed(4)}×
+
+Option B - Improve CPI:
+${challengeResults.optionBCPI.toFixed(4)}×
+
+Option C - Amdahl Optimization:
+${challengeResults.optionCAmdahl.toFixed(4)}×
+
+
+Files included in this package:
+
+1. Lab1_Results.csv
+2. Clock_Rate_Graph.png
+3. CPI_Graph.png
+4. Amdahl_Graph.png
+5. Lab1_Summary.txt
+
+Use these files as evidence when preparing
+your Canvas laboratory report.
+
+`;
+
+
+    zip.file(
+        "Lab1_Summary.txt",
+        summary
+    );
+
+
+    /* ==========================================
+       CREATE ZIP
+    ========================================== */
+
+    const blob =
+        await zip.generateAsync({
+            type: "blob"
+        });
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+    link.href = url;
+
+    link.download =
+        "Lab1_Quantitative_Performance_Results.zip";
+
+    document.body.appendChild(
+        link
+    );
+
+    link.click();
+
+    document.body.removeChild(
+        link
+    );
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
 updateCalculator();
 
+
 document
-    .getElementById("instructionCount")
+    .getElementById(
+        "instructionCount"
+    )
     .addEventListener(
         "input",
         updateCalculator
     );
 
+
 document
-    .getElementById("clockRate")
+    .getElementById(
+        "clockRate"
+    )
     .addEventListener(
         "input",
         updateCalculator
     );
 
+
 document
-    .getElementById("cpi")
+    .getElementById(
+        "cpi"
+    )
     .addEventListener(
         "input",
         updateCalculator
