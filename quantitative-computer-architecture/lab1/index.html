@@ -1,921 +1,1087 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quantitative Computer Architecture — Lab 1</title>
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Lab 1 - Quantitative Performance Simulator
+</title>
+
+<!-- JSZip for combined download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
 
-    body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #f4f6f8;
-        color: #1f2937;
-        line-height: 1.5;
-    }
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+header {
+    background: #17365d;
+    color: white;
+    padding: 30px 40px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+}
+
+header p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+h2 {
+    color: #17365d;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: #274e75;
+}
+
+.info {
+    background: #eef4fb;
+    border-left: 5px solid #17365d;
+    padding: 15px 20px;
+    margin: 15px 0;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input {
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+button {
+    background: #17365d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 8px 5px 8px 0;
+}
+
+button:hover {
+    background: #0f2745;
+}
+
+.download {
+    background: #2f6f4e;
+}
+
+.download:hover {
+    background: #24583e;
+}
+
+.secondary {
+    background: #64748b;
+}
+
+.results {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.result-box {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+}
+
+.result-label {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.result-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 5px;
+    color: #17365d;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border: 1px solid #dbe2ea;
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #17365d;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+canvas {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+}
+
+.export-box {
+    background: #eef7f1;
+    border: 2px solid #2f6f4e;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+}
+
+.export-box h2 {
+    color: #2f6f4e;
+    border-bottom: none;
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 30px;
+}
+
+@media(max-width:700px) {
 
     header {
-        background: #17365d;
-        color: white;
-        padding: 28px 40px;
+        padding: 25px 20px;
     }
 
     header h1 {
-        margin: 0 0 6px;
-        font-size: 30px;
-    }
-
-    header p {
-        margin: 0;
-        opacity: 0.9;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 30px auto;
-        padding: 0 20px;
+        font-size: 24px;
     }
 
     .card {
-        background: white;
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    h2 {
-        margin-top: 0;
-        color: #17365d;
-        border-bottom: 2px solid #e5e7eb;
-        padding-bottom: 10px;
-    }
-
-    h3 {
-        color: #274e75;
-        margin-top: 25px;
-    }
-
-    .objective {
-        background: #eef4fb;
-        border-left: 5px solid #17365d;
-        padding: 15px 20px;
-        margin: 15px 0;
-    }
-
-    .formula {
-        background: #f8fafc;
-        border: 1px solid #dbe2ea;
         padding: 18px;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 20px;
-        margin: 15px 0;
-        font-family: Georgia, serif;
     }
 
-    .controls {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 18px;
-        margin-top: 20px;
-    }
+}
 
-    .control-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    label {
-        font-weight: bold;
-        margin-bottom: 7px;
-    }
-
-    input, select {
-        padding: 11px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-size: 16px;
-    }
-
-    input:focus, select:focus {
-        outline: 2px solid #8db3d8;
-    }
-
-    .results {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 15px;
-        margin-top: 25px;
-    }
-
-    .result-box {
-        background: #f1f5f9;
-        border-radius: 8px;
-        padding: 18px;
-        text-align: center;
-    }
-
-    .result-label {
-        font-size: 14px;
-        color: #64748b;
-    }
-
-    .result-value {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 5px;
-        color: #17365d;
-    }
-
-    button {
-        background: #17365d;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        margin-top: 15px;
-    }
-
-    button:hover {
-        background: #0f2745;
-    }
-
-    .secondary {
-        background: #64748b;
-    }
-
-    .secondary:hover {
-        background: #475569;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        border: 1px solid #dbe2ea;
-        padding: 12px;
-        text-align: center;
-    }
-
-    th {
-        background: #17365d;
-        color: white;
-    }
-
-    tr:nth-child(even) {
-        background: #f8fafc;
-    }
-
-    .question {
-        background: #fafafa;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 18px;
-        margin: 15px 0;
-    }
-
-    .question strong {
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .answer {
-        width: 100%;
-        min-height: 90px;
-        resize: vertical;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .success {
-        background: #ecfdf5;
-        border-left: 5px solid #16a34a;
-        padding: 15px;
-        margin-top: 15px;
-        display: none;
-    }
-
-    .warning {
-        background: #fff7ed;
-        border-left: 5px solid #ea580c;
-        padding: 15px;
-        margin-top: 15px;
-    }
-
-    .challenge-options {
-        display: grid;
-        gap: 12px;
-        margin-top: 15px;
-    }
-
-    .challenge-option {
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 15px;
-        cursor: pointer;
-        background: white;
-    }
-
-    .challenge-option:hover {
-        background: #f8fafc;
-    }
-
-    .challenge-option input {
-        margin-right: 10px;
-    }
-
-    .challenge-result {
-        margin-top: 15px;
-        padding: 15px;
-        border-radius: 8px;
-        display: none;
-    }
-
-    .correct {
-        background: #ecfdf5;
-        border: 1px solid #86efac;
-    }
-
-    .incorrect {
-        background: #fef2f2;
-        border: 1px solid #fca5a5;
-    }
-
-    canvas {
-        width: 100%;
-        max-height: 400px;
-        margin-top: 20px;
-    }
-
-    footer {
-        text-align: center;
-        padding: 30px;
-        color: #64748b;
-        font-size: 14px;
-    }
-
-    @media (max-width: 700px) {
-        header {
-            padding: 25px 20px;
-        }
-
-        header h1 {
-            font-size: 24px;
-        }
-
-        .card {
-            padding: 18px;
-        }
-    }
 </style>
+
 </head>
 
 <body>
 
 <header>
-    <h1>Quantitative Computer Architecture — Lab 1</h1>
-    <p>Quantitative Performance Analysis and Amdahl's Law</p>
+
+<h1>
+Quantitative Computer Architecture
+</h1>
+
+<p>
+Lab 1 — Quantitative Performance Simulator
+</p>
+
 </header>
+
 
 <div class="container">
 
-    <!-- OBJECTIVES -->
-    <section class="card">
-        <h2>Lab Overview</h2>
 
-        <div class="objective">
-            <strong>Learning Objectives</strong>
-            <ul>
-                <li>Calculate CPU execution time using the CPU performance equation.</li>
-                <li>Understand the relationship between CPI, IPC, clock rate, and performance.</li>
-                <li>Compare processor performance quantitatively.</li>
-                <li>Calculate speedup using Amdahl's Law.</li>
-                <li>Evaluate architectural improvements and trade-offs.</li>
-            </ul>
-        </div>
+<!-- =========================================
+     BASIC CPU CALCULATOR
+========================================= -->
 
-        <h3>CPU Performance Equation</h3>
+<section class="card">
 
-        <div class="formula">
-            CPU Time =
-            <strong>(Instruction Count × CPI) / Clock Rate</strong>
-        </div>
+<h2>
+CPU Performance Calculator
+</h2>
 
-        <h3>Amdahl's Law</h3>
+<div class="info">
 
-        <div class="formula">
-            Overall Speedup =
-            <strong>1 / ((1 − F) + (F / S))</strong>
-        </div>
-
-        <p>
-            Where <strong>F</strong> is the fraction of execution time improved
-            and <strong>S</strong> is the speedup of the improved portion.
-        </p>
-    </section>
-
-
-    <!-- PART 1 -->
-    <section class="card">
-        <h2>Part 1 — CPU Performance Equation</h2>
-
-        <p>
-            Modify the processor parameters below. The simulator will
-            automatically calculate execution time, clock cycles, and IPC.
-        </p>
-
-        <div class="controls">
-
-            <div class="control-group">
-                <label for="instructionCount">
-                    Instruction Count
-                </label>
-
-                <input
-                    type="number"
-                    id="instructionCount"
-                    value="2000000000"
-                    min="1"
-                    step="100000000"
-                >
-            </div>
-
-            <div class="control-group">
-                <label for="clockRate">
-                    Clock Rate (GHz)
-                </label>
-
-                <input
-                    type="number"
-                    id="clockRate"
-                    value="3"
-                    min="0.1"
-                    step="0.1"
-                >
-            </div>
-
-            <div class="control-group">
-                <label for="cpi">
-                    Average CPI
-                </label>
-
-                <input
-                    type="number"
-                    id="cpi"
-                    value="1.5"
-                    min="0.1"
-                    step="0.1"
-                >
-            </div>
-
-        </div>
-
-        <div class="results">
-
-            <div class="result-box">
-                <div class="result-label">CPU Time</div>
-                <div class="result-value" id="cpuTime">—</div>
-            </div>
-
-            <div class="result-box">
-                <div class="result-label">Clock Cycles</div>
-                <div class="result-value" id="clockCycles">—</div>
-            </div>
-
-            <div class="result-box">
-                <div class="result-label">IPC</div>
-                <div class="result-value" id="ipc">—</div>
-            </div>
-
-            <div class="result-box">
-                <div class="result-label">Performance</div>
-                <div class="result-value" id="performance">—</div>
-            </div>
-
-        </div>
-
-        <h3>Experiment 1 — Change Clock Rate</h3>
-
-        <p>
-            Record the CPU time for clock rates of 2, 3, 4, and 5 GHz.
-        </p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Clock Rate</th>
-                    <th>CPU Time</th>
-                    <th>Relative Performance</th>
-                </tr>
-            </thead>
-
-            <tbody id="clockTable"></tbody>
-        </table>
-
-        <button onclick="generateClockTable()">
-            Generate Results
-        </button>
-
-    </section>
-
-
-    <!-- PART 2 -->
-    <section class="card">
-
-        <h2>Part 2 — CPI and IPC</h2>
-
-        <p>
-            Keep the instruction count and clock rate fixed. Investigate how
-            changing CPI affects execution time and IPC.
-        </p>
-
-        <table>
-
-            <thead>
-                <tr>
-                    <th>CPI</th>
-                    <th>CPU Time</th>
-                    <th>IPC</th>
-                </tr>
-            </thead>
-
-            <tbody id="cpiTable"></tbody>
-
-        </table>
-
-        <button onclick="generateCPITable()">
-            Generate CPI Results
-        </button>
-
-        <div class="warning">
-            <strong>Think:</strong>
-            A processor with a higher clock rate is not automatically faster.
-            Performance depends on both clock rate and CPI.
-        </div>
-
-    </section>
-
-
-    <!-- PART 3 -->
-    <section class="card">
-
-        <h2>Part 3 — Compare Two Processors</h2>
-
-        <p>
-            Compare two processors running the same workload.
-        </p>
-
-        <div class="controls">
-
-            <div class="control-group">
-
-                <h3>Processor A</h3>
-
-                <label>Clock Rate (GHz)</label>
-                <input
-                    type="number"
-                    id="aClock"
-                    value="3"
-                    step="0.1"
-                >
-
-                <label>CPI</label>
-                <input
-                    type="number"
-                    id="aCpi"
-                    value="1.5"
-                    step="0.1"
-                >
-
-            </div>
-
-
-            <div class="control-group">
-
-                <h3>Processor B</h3>
-
-                <label>Clock Rate (GHz)</label>
-                <input
-                    type="number"
-                    id="bClock"
-                    value="4"
-                    step="0.1"
-                >
-
-                <label>CPI</label>
-                <input
-                    type="number"
-                    id="bCpi"
-                    value="2"
-                    step="0.1"
-                >
-
-            </div>
-
-        </div>
-
-        <button onclick="compareProcessors()">
-            Compare Processors
-        </button>
-
-        <div id="processorComparison"></div>
-
-    </section>
-
-
-    <!-- PART 4 -->
-    <section class="card">
-
-        <h2>Part 4 — Amdahl's Law</h2>
-
-        <p>
-            Suppose a fraction of a program can be improved by a hardware
-            or software optimization. Adjust the values below.
-        </p>
-
-        <div class="controls">
-
-            <div class="control-group">
-
-                <label>
-                    Fraction Improved (%)
-                </label>
-
-                <input
-                    type="number"
-                    id="fractionImproved"
-                    value="40"
-                    min="0"
-                    max="100"
-                    step="1"
-                >
-
-            </div>
-
-            <div class="control-group">
-
-                <label>
-                    Speedup of Improved Portion
-                </label>
-
-                <input
-                    type="number"
-                    id="componentSpeedup"
-                    value="2"
-                    min="1"
-                    step="0.5"
-                >
-
-            </div>
-
-        </div>
-
-        <div class="results">
-
-            <div class="result-box">
-                <div class="result-label">Overall Speedup</div>
-                <div class="result-value" id="overallSpeedup">
-                    —
-                </div>
-            </div>
-
-            <div class="result-box">
-                <div class="result-label">Maximum Possible Speedup</div>
-                <div class="result-value" id="maxSpeedup">
-                    —
-                </div>
-            </div>
-
-        </div>
-
-        <button onclick="calculateAmdahl()">
-            Calculate Speedup
-        </button>
-
-        <h3>Experiment — Increasing Component Speedup</h3>
-
-        <table>
-
-            <thead>
-                <tr>
-                    <th>Component Speedup</th>
-                    <th>Overall Speedup</th>
-                </tr>
-            </thead>
-
-            <tbody id="amdahlTable"></tbody>
-
-        </table>
-
-        <button onclick="generateAmdahlTable()">
-            Generate Amdahl Results
-        </button>
-
-    </section>
-
-
-    <!-- PART 5 -->
-    <section class="card">
-
-        <h2>Part 5 — The Architect's Challenge</h2>
-
-        <p>
-            You are the architect responsible for improving a processor.
-            The baseline processor has the following characteristics:
-        </p>
-
-        <ul>
-            <li>Clock Rate = 3 GHz</li>
-            <li>CPI = 1.5</li>
-            <li>Instruction Count = 2 billion</li>
-        </ul>
-
-        <p>
-            You have three possible upgrades. Which one should you choose?
-        </p>
-
-        <div class="challenge-options">
-
-            <label class="challenge-option">
-                <input
-                    type="radio"
-                    name="challenge"
-                    value="clock"
-                >
-                <strong>Option A:</strong>
-                Increase clock rate from 3 GHz to 4 GHz.
-            </label>
-
-            <label class="challenge-option">
-                <input
-                    type="radio"
-                    name="challenge"
-                    value="cpi"
-                >
-                <strong>Option B:</strong>
-                Reduce CPI from 1.5 to 1.1.
-            </label>
-
-            <label class="challenge-option">
-                <input
-                    type="radio"
-                    name="challenge"
-                    value="amdahl"
-                >
-                <strong>Option C:</strong>
-                Optimize 50% of the workload by 5×.
-            </label>
-
-        </div>
-
-        <button onclick="checkChallenge()">
-            Check Answer
-        </button>
-
-        <div id="challengeResult" class="challenge-result"></div>
-
-    </section>
-
-
-    <!-- QUESTIONS -->
-    <section class="card">
-
-        <h2>Lab Analysis Questions</h2>
-
-        <div class="question">
-
-            <strong>1. Which parameter had the greatest effect on CPU performance?</strong>
-
-            <textarea
-                class="answer"
-                placeholder="Explain your answer using quantitative evidence."
-            ></textarea>
-
-        </div>
-
-        <div class="question">
-
-            <strong>
-                2. Why does increasing clock frequency not necessarily
-                produce the same proportional increase in performance?
-            </strong>
-
-            <textarea
-                class="answer"
-                placeholder="Explain the relationship between clock rate and CPI."
-            ></textarea>
-
-        </div>
-
-        <div class="question">
-
-            <strong>
-                3. Why can a processor with a lower clock rate outperform
-                a processor with a higher clock rate?
-            </strong>
-
-            <textarea
-                class="answer"
-                placeholder="Use the CPU performance equation."
-            ></textarea>
-
-        </div>
-
-        <div class="question">
-
-            <strong>
-                4. What does Amdahl's Law tell us about optimizing only
-                part of a program?
-            </strong>
-
-            <textarea
-                class="answer"
-                placeholder="Discuss diminishing returns."
-            ></textarea>
-
-        </div>
-
-        <div class="question">
-
-            <strong>
-                5. Which processor upgrade would you recommend and why?
-            </strong>
-
-            <textarea
-                class="answer"
-                placeholder="Support your recommendation with calculations."
-            ></textarea>
-
-        </div>
-
-        <button onclick="window.print()">
-            Print / Save Lab Report
-        </button>
-
-    </section>
+<strong>
+CPU Time =
+(Instruction Count × CPI) / Clock Rate
+</strong>
 
 </div>
 
+<div class="controls">
+
+<div class="control-group">
+
+<label>
+Instruction Count
+</label>
+
+<input
+id="instructionCount"
+type="number"
+value="2000000000"
+min="1"
+>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Clock Rate (GHz)
+</label>
+
+<input
+id="clockRate"
+type="number"
+value="3"
+step="0.1"
+min="0.1"
+>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Average CPI
+</label>
+
+<input
+id="cpi"
+type="number"
+value="1.5"
+step="0.1"
+min="0.1"
+>
+
+</div>
+
+</div>
+
+
+<div class="results">
+
+<div class="result-box">
+
+<div class="result-label">
+CPU Time
+</div>
+
+<div
+class="result-value"
+id="cpuTime"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Clock Cycles
+</div>
+
+<div
+class="result-value"
+id="clockCycles"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+IPC
+</div>
+
+<div
+class="result-value"
+id="ipc"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Performance
+</div>
+
+<div
+class="result-value"
+id="performance"
+>
+—
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     EXPERIMENT 1
+========================================= -->
+
+<section class="card">
+
+<h2>
+Experiment 1 — Effect of Clock Rate
+</h2>
+
+<p>
+Investigate the relationship between clock rate and
+CPU execution time.
+</p>
+
+<button onclick="runClockExperiment()">
+Run Experiment
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Clock Rate (GHz)
+</th>
+
+<th>
+CPU Time (s)
+</th>
+
+<th>
+Relative Performance
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="clockResults">
+
+</tbody>
+
+</table>
+
+<canvas id="clockChart"></canvas>
+
+</section>
+
+
+<!-- =========================================
+     EXPERIMENT 2
+========================================= -->
+
+<section class="card">
+
+<h2>
+Experiment 2 — CPI and IPC
+</h2>
+
+<p>
+Investigate the relationship between CPI, IPC, and
+CPU execution time.
+</p>
+
+<button onclick="runCPIExperiment()">
+Run Experiment
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+CPI
+</th>
+
+<th>
+CPU Time (s)
+</th>
+
+<th>
+IPC
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="cpiResults">
+
+</tbody>
+
+</table>
+
+<canvas id="cpiChart"></canvas>
+
+</section>
+
+
+<!-- =========================================
+     EXPERIMENT 3
+========================================= -->
+
+<section class="card">
+
+<h2>
+Experiment 3 — Processor Comparison
+</h2>
+
+<div class="controls">
+
+<div class="control-group">
+
+<h3>
+Processor A
+</h3>
+
+<label>
+Clock Rate (GHz)
+</label>
+
+<input
+id="aClock"
+type="number"
+value="3"
+step="0.1"
+>
+
+<label>
+CPI
+</label>
+
+<input
+id="aCpi"
+type="number"
+value="1.5"
+step="0.1"
+>
+
+</div>
+
+
+<div class="control-group">
+
+<h3>
+Processor B
+</h3>
+
+<label>
+Clock Rate (GHz)
+</label>
+
+<input
+id="bClock"
+type="number"
+value="4"
+step="0.1"
+>
+
+<label>
+CPI
+</label>
+
+<input
+id="bCpi"
+type="number"
+value="2"
+step="0.1"
+>
+
+</div>
+
+</div>
+
+<button onclick="compareProcessors()">
+Compare Processors
+</button>
+
+<div id="processorResults"></div>
+
+</section>
+
+
+<!-- =========================================
+     EXPERIMENT 4
+========================================= -->
+
+<section class="card">
+
+<h2>
+Experiment 4 — Amdahl's Law
+</h2>
+
+<div class="info">
+
+<strong>
+Overall Speedup =
+1 / ((1 − F) + (F / S))
+</strong>
+
+</div>
+
+<div class="controls">
+
+<div class="control-group">
+
+<label>
+Fraction Improved (%)
+</label>
+
+<input
+id="fraction"
+type="number"
+value="40"
+min="0"
+max="100"
+>
+
+</div>
+
+</div>
+
+<button onclick="runAmdahlExperiment()">
+Run Experiment
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Component Speedup
+</th>
+
+<th>
+Overall Speedup
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="amdahlResults">
+
+</tbody>
+
+</table>
+
+<canvas id="amdahlChart"></canvas>
+
+</section>
+
+
+<!-- =========================================
+     EXPERIMENT 5
+========================================= -->
+
+<section class="card">
+
+<h2>
+Experiment 5 — Architect's Challenge
+</h2>
+
+<p>
+Compare three architectural improvements and determine
+which produces the greatest overall performance improvement.
+</p>
+
+<button onclick="calculateChallenge()">
+Calculate Options
+</button>
+
+<div class="results">
+
+<div class="result-box">
+
+<div class="result-label">
+Option A — Clock Rate
+</div>
+
+<div
+class="result-value"
+id="optionA"
+>
+—
+</div>
+
+</div>
+
+<div class="result-box">
+
+<div class="result-label">
+Option B — CPI
+</div>
+
+<div
+class="result-value"
+id="optionB"
+>
+—
+</div>
+
+</div>
+
+<div class="result-box">
+
+<div class="result-label">
+Option C — Amdahl
+</div>
+
+<div
+class="result-value"
+id="optionC"
+>
+—
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     EXPORT
+========================================= -->
+
+<section class="card export-box">
+
+<h2>
+Export Lab Results
+</h2>
+
+<p>
+
+When you have completed all experiments,
+click the button below.
+
+</p>
+
+<p>
+
+The simulator will generate a ZIP file containing:
+
+</p>
+
+<ul style="text-align:left; max-width:500px; margin:auto;">
+
+<li>
+Complete experimental results
+</li>
+
+<li>
+Clock Rate graph
+</li>
+
+<li>
+CPI graph
+</li>
+
+<li>
+Amdahl's Law graph
+</li>
+
+<li>
+Processor comparison
+</li>
+
+<li>
+Architect's Challenge results
+</li>
+
+<li>
+Simulation parameters
+</li>
+
+<li>
+Timestamp
+</li>
+
+</ul>
+
+<br>
+
+<button
+class="download"
+onclick="exportLabResults()"
+>
+
+⬇ Export Complete Lab Results
+
+</button>
+
+</section>
+
+
+</div>
+
+
 <footer>
-    Quantitative Computer Architecture — Lab 1<br>
-    Quantitative Performance Analysis
+
+Quantitative Computer Architecture<br>
+
+Lab 1 — Quantitative Performance Simulator
+
 </footer>
 
 
 <script>
 
-function getInputs() {
+/* =====================================================
+   GLOBAL DATA
+===================================================== */
+
+let clockData = [];
+
+let cpiData = [];
+
+let amdahlData = [];
+
+let processorComparison = {};
+
+let challengeResults = {};
+
+
+/* =====================================================
+   CPU TIME
+===================================================== */
+
+function cpuTime(
+    instructions,
+    cpi,
+    clockGHz
+) {
+
+    return (
+        instructions * cpi
+    ) /
+    (
+        clockGHz * 1e9
+    );
+
+}
+
+
+/* =====================================================
+   BASIC CALCULATOR
+===================================================== */
+
+function updateCalculator() {
 
     const instructions =
-        Number(document.getElementById("instructionCount").value);
-
-    const clockGHz =
-        Number(document.getElementById("clockRate").value);
-
-    const cpi =
-        Number(document.getElementById("cpi").value);
-
-    return {
-        instructions,
-        clockGHz,
-        cpi
-    };
-}
-
-
-function calculateCPUTime(instructions, cpi, clockGHz) {
-
-    const clockHz = clockGHz * 1e9;
-
-    return (instructions * cpi) / clockHz;
-}
-
-
-function updateMainResults() {
-
-    const {
-        instructions,
-        clockGHz,
-        cpi
-    } = getInputs();
-
-    const cycles = instructions * cpi;
-
-    const time =
-        calculateCPUTime(
-            instructions,
-            cpi,
-            clockGHz
+        Number(
+            document.getElementById(
+                "instructionCount"
+            ).value
         );
 
-    const ipc = 1 / cpi;
+    const clock =
+        Number(
+            document.getElementById(
+                "clockRate"
+            ).value
+        );
 
-    const performance = 1 / time;
+    const cpi =
+        Number(
+            document.getElementById(
+                "cpi"
+            ).value
+        );
 
-    document.getElementById("cpuTime").textContent =
+    const cycles =
+        instructions * cpi;
+
+    const time =
+        cpuTime(
+            instructions,
+            cpi,
+            clock
+        );
+
+    const ipc =
+        1 / cpi;
+
+    document.getElementById(
+        "cpuTime"
+    ).textContent =
         time.toFixed(4) + " s";
 
-    document.getElementById("clockCycles").textContent =
+    document.getElementById(
+        "clockCycles"
+    ).textContent =
         cycles.toLocaleString();
 
-    document.getElementById("ipc").textContent =
+    document.getElementById(
+        "ipc"
+    ).textContent =
         ipc.toFixed(3);
 
-    document.getElementById("performance").textContent =
-        performance.toFixed(3) + " /s";
+    document.getElementById(
+        "performance"
+    ).textContent =
+        (1 / time).toFixed(3) + " /s";
+
 }
 
 
-function generateClockTable() {
+/* =====================================================
+   EXPERIMENT 1
+===================================================== */
 
-    const {
-        instructions,
-        cpi
-    } = getInputs();
+function runClockExperiment() {
 
-    const rates = [2, 3, 4, 5];
+    const instructions =
+        Number(
+            document.getElementById(
+                "instructionCount"
+            ).value
+        );
 
-    const baselineTime =
-        calculateCPUTime(
+    const cpi =
+        Number(
+            document.getElementById(
+                "cpi"
+            ).value
+        );
+
+    const rates =
+        [2, 3, 4, 5];
+
+    const baseline =
+        cpuTime(
             instructions,
             cpi,
             3
         );
+
+    clockData = [];
 
     let html = "";
 
     rates.forEach(rate => {
 
         const time =
-            calculateCPUTime(
+            cpuTime(
                 instructions,
                 cpi,
                 rate
             );
 
-        const performance =
-            baselineTime / time;
+        const relative =
+            baseline / time;
+
+        clockData.push({
+            clockRate: rate,
+            cpuTime: time,
+            relativePerformance: relative
+        });
 
         html += `
-            <tr>
-                <td>${rate} GHz</td>
-                <td>${time.toFixed(4)} s</td>
-                <td>${performance.toFixed(2)}×</td>
-            </tr>
+
+        <tr>
+
+            <td>
+                ${rate}
+            </td>
+
+            <td>
+                ${time.toFixed(4)}
+            </td>
+
+            <td>
+                ${relative.toFixed(3)}×
+            </td>
+
+        </tr>
+
         `;
+
     });
 
-    document.getElementById("clockTable").innerHTML =
-        html;
+    document.getElementById(
+        "clockResults"
+    ).innerHTML = html;
+
+    drawChart(
+        "clockChart",
+        rates,
+        clockData.map(
+            x => x.cpuTime
+        ),
+        "Clock Rate (GHz)",
+        "CPU Time (seconds)"
+    );
+
 }
 
 
-function generateCPITable() {
+/* =====================================================
+   EXPERIMENT 2
+===================================================== */
 
-    const {
-        instructions,
-        clockGHz
-    } = getInputs();
+function runCPIExperiment() {
+
+    const instructions =
+        Number(
+            document.getElementById(
+                "instructionCount"
+            ).value
+        );
+
+    const clock =
+        Number(
+            document.getElementById(
+                "clockRate"
+            ).value
+        );
 
     const cpis =
         [0.5, 1, 1.5, 2, 3];
+
+    cpiData = [];
 
     let html = "";
 
     cpis.forEach(cpi => {
 
         const time =
-            calculateCPUTime(
+            cpuTime(
                 instructions,
                 cpi,
-                clockGHz
+                clock
             );
 
-        const ipc = 1 / cpi;
+        const ipc =
+            1 / cpi;
+
+        cpiData.push({
+            cpi: cpi,
+            cpuTime: time,
+            ipc: ipc
+        });
 
         html += `
-            <tr>
-                <td>${cpi.toFixed(1)}</td>
-                <td>${time.toFixed(4)} s</td>
-                <td>${ipc.toFixed(3)}</td>
-            </tr>
+
+        <tr>
+
+            <td>
+                ${cpi}
+            </td>
+
+            <td>
+                ${time.toFixed(4)}
+            </td>
+
+            <td>
+                ${ipc.toFixed(3)}
+            </td>
+
+        </tr>
+
         `;
+
     });
 
-    document.getElementById("cpiTable").innerHTML =
-        html;
+    document.getElementById(
+        "cpiResults"
+    ).innerHTML = html;
+
+    drawChart(
+        "cpiChart",
+        cpis,
+        cpiData.map(
+            x => x.cpuTime
+        ),
+        "CPI",
+        "CPU Time (seconds)"
+    );
+
 }
 
+
+/* =====================================================
+   EXPERIMENT 3
+===================================================== */
 
 function compareProcessors() {
 
@@ -928,152 +1094,202 @@ function compareProcessors() {
 
     const aClock =
         Number(
-            document.getElementById("aClock").value
+            document.getElementById(
+                "aClock"
+            ).value
         );
 
     const aCpi =
         Number(
-            document.getElementById("aCpi").value
+            document.getElementById(
+                "aCpi"
+            ).value
         );
 
     const bClock =
         Number(
-            document.getElementById("bClock").value
+            document.getElementById(
+                "bClock"
+            ).value
         );
 
     const bCpi =
         Number(
-            document.getElementById("bCpi").value
+            document.getElementById(
+                "bCpi"
+            ).value
         );
 
     const timeA =
-        calculateCPUTime(
+        cpuTime(
             instructions,
             aCpi,
             aClock
         );
 
     const timeB =
-        calculateCPUTime(
+        cpuTime(
             instructions,
             bCpi,
             bClock
         );
 
     const speedup =
-        Math.max(timeA, timeB) /
-        Math.min(timeA, timeB);
+        Math.max(
+            timeA,
+            timeB
+        ) /
+        Math.min(
+            timeA,
+            timeB
+        );
+
+    processorComparison = {
+
+        processorA: {
+            clockRate: aClock,
+            cpi: aCpi,
+            cpuTime: timeA
+        },
+
+        processorB: {
+            clockRate: bClock,
+            cpi: bCpi,
+            cpuTime: timeB
+        },
+
+        speedup: speedup
+
+    };
 
     let faster;
 
     if (timeA < timeB) {
 
-        faster = "Processor A is faster.";
+        faster =
+            "Processor A is faster.";
 
-    } else if (timeB < timeA) {
+    }
 
-        faster = "Processor B is faster.";
+    else if (timeB < timeA) {
 
-    } else {
+        faster =
+            "Processor B is faster.";
 
-        faster = "Both processors have equal performance.";
+    }
+
+    else {
+
+        faster =
+            "Both processors have equal execution time.";
+
     }
 
     document.getElementById(
-        "processorComparison"
+        "processorResults"
     ).innerHTML = `
 
         <table>
 
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Processor A</th>
-                    <th>Processor B</th>
-                </tr>
-            </thead>
+        <tr>
 
-            <tbody>
+            <th></th>
 
-                <tr>
-                    <td>Clock Rate</td>
-                    <td>${aClock} GHz</td>
-                    <td>${bClock} GHz</td>
-                </tr>
+            <th>
+                Processor A
+            </th>
 
-                <tr>
-                    <td>CPI</td>
-                    <td>${aCpi}</td>
-                    <td>${bCpi}</td>
-                </tr>
+            <th>
+                Processor B
+            </th>
 
-                <tr>
-                    <td>CPU Time</td>
-                    <td>${timeA.toFixed(4)} s</td>
-                    <td>${timeB.toFixed(4)} s</td>
-                </tr>
+        </tr>
 
-            </tbody>
+        <tr>
+
+            <td>
+                Clock Rate
+            </td>
+
+            <td>
+                ${aClock} GHz
+            </td>
+
+            <td>
+                ${bClock} GHz
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td>
+                CPI
+            </td>
+
+            <td>
+                ${aCpi}
+            </td>
+
+            <td>
+                ${bCpi}
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td>
+                CPU Time
+            </td>
+
+            <td>
+                ${timeA.toFixed(4)} s
+            </td>
+
+            <td>
+                ${timeB.toFixed(4)} s
+            </td>
+
+        </tr>
 
         </table>
 
-        <div class="success" style="display:block">
-            <strong>${faster}</strong><br>
+        <div class="info">
+
+            <strong>
+                ${faster}
+            </strong>
+
+            <br><br>
+
             Performance difference:
-            ${speedup.toFixed(2)}×
+            ${speedup.toFixed(3)}×
+
         </div>
+
     `;
+
 }
 
 
-function calculateAmdahl() {
+/* =====================================================
+   EXPERIMENT 4 — AMDAHL
+===================================================== */
+
+function runAmdahlExperiment() {
 
     const fraction =
         Number(
             document.getElementById(
-                "fractionImproved"
-            ).value
-        ) / 100;
-
-    const speedup =
-        Number(
-            document.getElementById(
-                "componentSpeedup"
-            ).value
-        );
-
-    const overall =
-        1 /
-        ((1 - fraction) +
-        (fraction / speedup));
-
-    const maximum =
-        1 /
-        (1 - fraction);
-
-    document.getElementById(
-        "overallSpeedup"
-    ).textContent =
-        overall.toFixed(3) + "×";
-
-    document.getElementById(
-        "maxSpeedup"
-    ).textContent =
-        maximum.toFixed(3) + "×";
-}
-
-
-function generateAmdahlTable() {
-
-    const fraction =
-        Number(
-            document.getElementById(
-                "fractionImproved"
+                "fraction"
             ).value
         ) / 100;
 
     const speeds =
         [1, 2, 4, 8, 16, 100];
+
+    amdahlData = [];
 
     let html = "";
 
@@ -1081,157 +1297,791 @@ function generateAmdahlTable() {
 
         const overall =
             1 /
-            ((1 - fraction) +
-            (fraction / speed));
+            (
+                (1 - fraction) +
+                (fraction / speed)
+            );
+
+        amdahlData.push({
+
+            componentSpeedup:
+                speed,
+
+            overallSpeedup:
+                overall
+
+        });
 
         html += `
-            <tr>
-                <td>${speed}×</td>
-                <td>${overall.toFixed(3)}×</td>
-            </tr>
+
+        <tr>
+
+            <td>
+                ${speed}×
+            </td>
+
+            <td>
+                ${overall.toFixed(4)}×
+            </td>
+
+        </tr>
+
         `;
+
     });
 
     document.getElementById(
-        "amdahlTable"
+        "amdahlResults"
     ).innerHTML = html;
+
+    drawChart(
+        "amdahlChart",
+        speeds,
+        amdahlData.map(
+            x => x.overallSpeedup
+        ),
+        "Component Speedup",
+        "Overall Speedup"
+    );
+
 }
 
 
-function checkChallenge() {
+/* =====================================================
+   EXPERIMENT 5
+===================================================== */
 
-    const selected =
-        document.querySelector(
-            'input[name="challenge"]:checked'
+function calculateChallenge() {
+
+    const optionA =
+        4 / 3;
+
+    const optionB =
+        1.5 / 1.1;
+
+    const optionC =
+        1 /
+        (
+            0.5 +
+            (0.5 / 5)
         );
 
-    const result =
+    challengeResults = {
+
+        optionAClockRate:
+            optionA,
+
+        optionBCPI:
+            optionB,
+
+        optionCAmdahl:
+            optionC
+
+    };
+
+    document.getElementById(
+        "optionA"
+    ).textContent =
+        optionA.toFixed(3) + "×";
+
+    document.getElementById(
+        "optionB"
+    ).textContent =
+        optionB.toFixed(3) + "×";
+
+    document.getElementById(
+        "optionC"
+    ).textContent =
+        optionC.toFixed(3) + "×";
+
+}
+
+
+/* =====================================================
+   GRAPH GENERATOR
+===================================================== */
+
+function drawChart(
+    canvasId,
+    xValues,
+    yValues,
+    xLabel,
+    yLabel
+) {
+
+    const canvas =
         document.getElementById(
-            "challengeResult"
+            canvasId
         );
 
-    if (!selected) {
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
 
-        result.className =
-            "challenge-result incorrect";
+    const ratio =
+        window.devicePixelRatio || 1;
 
-        result.style.display =
-            "block";
+    const width =
+        canvas.clientWidth;
 
-        result.innerHTML =
-            "Please select an option.";
+    const height =
+        canvas.clientHeight;
 
-        return;
-    }
+    canvas.width =
+        width * ratio;
 
-    /*
-        Baseline:
-        3 GHz, CPI 1.5
+    canvas.height =
+        height * ratio;
 
-        Option A:
-        3 GHz -> 4 GHz
-        Speedup = 4/3 = 1.333×
+    ctx.setTransform(
+        ratio,
+        0,
+        0,
+        ratio,
+        0,
+        0
+    );
 
-        Option B:
-        CPI 1.5 -> 1.1
-        Speedup = 1.5/1.1 = 1.364×
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
 
-        Option C:
-        50% improved by 5×
-        Amdahl = 1/(0.5 + 0.5/5)
-        = 1.667×
-    */
+    const margin = 70;
 
-    if (selected.value === "amdahl") {
+    const plotWidth =
+        width -
+        margin * 1.5;
 
-        result.className =
-            "challenge-result correct";
+    const plotHeight =
+        height -
+        margin * 1.5;
 
-        result.style.display =
-            "block";
+    const maxY =
+        Math.max(
+            ...yValues
+        ) * 1.15;
 
-        result.innerHTML = `
-            <strong>Correct.</strong><br><br>
+    ctx.font =
+        "14px Arial";
 
-            Option C provides the greatest theoretical
-            speedup:
+    /* Axes */
 
-            <br><br>
+    ctx.beginPath();
 
-            Amdahl's Law:
-            <strong>1.667×</strong>
+    ctx.moveTo(
+        margin,
+        30
+    );
 
-            <br><br>
+    ctx.lineTo(
+        margin,
+        height - margin
+    );
 
-            Option A provides approximately
-            <strong>1.333×</strong> speedup.
+    ctx.lineTo(
+        width - 30,
+        height - margin
+    );
 
-            <br>
+    ctx.stroke();
 
-            Option B provides approximately
-            <strong>1.364×</strong> speedup.
+    /* Data line */
 
-            <br><br>
+    ctx.beginPath();
 
-            This demonstrates why architects must consider
-            the fraction of execution time affected by an
-            optimization, rather than simply making one
-            component extremely fast.
-        `;
+    yValues.forEach(
+        (value, index) => {
 
-    } else {
+            const x =
+                margin +
+                (
+                    index /
+                    Math.max(
+                        xValues.length - 1,
+                        1
+                    )
+                ) *
+                plotWidth;
 
-        result.className =
-            "challenge-result incorrect";
+            const y =
+                height -
+                margin -
+                (
+                    value /
+                    maxY
+                ) *
+                plotHeight;
 
-        result.style.display =
-            "block";
+            if (
+                index === 0
+            ) {
 
-        result.innerHTML = `
-            <strong>Not quite.</strong><br><br>
+                ctx.moveTo(
+                    x,
+                    y
+                );
 
-            Recalculate the speedup of each option using
-            the CPU Performance Equation and Amdahl's Law.
+            }
 
-            <br><br>
+            else {
 
-            Remember: the best architectural improvement
-            is not necessarily the one with the largest
-            improvement to a single component.
-        `;
-    }
+                ctx.lineTo(
+                    x,
+                    y
+                );
+
+            }
+
+        }
+    );
+
+    ctx.stroke();
+
+    /* Data points */
+
+    yValues.forEach(
+        (value, index) => {
+
+            const x =
+                margin +
+                (
+                    index /
+                    Math.max(
+                        xValues.length - 1,
+                        1
+                    )
+                ) *
+                plotWidth;
+
+            const y =
+                height -
+                margin -
+                (
+                    value /
+                    maxY
+                ) *
+                plotHeight;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                5,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.fillText(
+                value.toFixed(2),
+                x - 15,
+                y - 10
+            );
+
+            ctx.fillText(
+                xValues[index],
+                x - 10,
+                height -
+                margin +
+                25
+            );
+
+        }
+    );
+
+    /* Axis labels */
+
+    ctx.font =
+        "bold 15px Arial";
+
+    ctx.fillText(
+        xLabel,
+        width / 2 - 60,
+        height - 10
+    );
+
+    ctx.save();
+
+    ctx.translate(
+        18,
+        height / 2
+    );
+
+    ctx.rotate(
+        -Math.PI / 2
+    );
+
+    ctx.fillText(
+        yLabel,
+        0,
+        0
+    );
+
+    ctx.restore();
+
 }
 
 
-// Automatically update the main simulator
-document
-    .getElementById("instructionCount")
-    .addEventListener(
-        "input",
-        updateMainResults
+/* =====================================================
+   EXPORT FUNCTION
+===================================================== */
+
+async function exportLabResults() {
+
+    /* Make sure experiments have been run */
+
+    if (
+        clockData.length === 0
+    ) {
+
+        runClockExperiment();
+
+    }
+
+    if (
+        cpiData.length === 0
+    ) {
+
+        runCPIExperiment();
+
+    }
+
+    if (
+        amdahlData.length === 0
+    ) {
+
+        runAmdahlExperiment();
+
+    }
+
+    if (
+        Object.keys(
+            processorComparison
+        ).length === 0
+    ) {
+
+        compareProcessors();
+
+    }
+
+    if (
+        Object.keys(
+            challengeResults
+        ).length === 0
+    ) {
+
+        calculateChallenge();
+
+    }
+
+
+    const zip =
+        new JSZip();
+
+
+    /* ==========================================
+       CSV DATA
+    ========================================== */
+
+    let csv =
+        "LAB 1 - QUANTITATIVE PERFORMANCE ANALYSIS\n\n";
+
+
+    csv +=
+        "GENERAL SIMULATION PARAMETERS\n";
+
+    csv +=
+        "Instruction Count," +
+        document.getElementById(
+            "instructionCount"
+        ).value +
+        "\n";
+
+    csv +=
+        "Clock Rate (GHz)," +
+        document.getElementById(
+            "clockRate"
+        ).value +
+        "\n";
+
+    csv +=
+        "CPI," +
+        document.getElementById(
+            "cpi"
+        ).value +
+        "\n\n";
+
+
+    /* Experiment 1 */
+
+    csv +=
+        "EXPERIMENT 1 - CLOCK RATE\n";
+
+    csv +=
+        "Clock Rate (GHz),CPU Time (s),Relative Performance\n";
+
+    clockData.forEach(row => {
+
+        csv +=
+            row.clockRate +
+            "," +
+            row.cpuTime +
+            "," +
+            row.relativePerformance +
+            "\n";
+
+    });
+
+
+    csv += "\n";
+
+
+    /* Experiment 2 */
+
+    csv +=
+        "EXPERIMENT 2 - CPI AND IPC\n";
+
+    csv +=
+        "CPI,CPU Time (s),IPC\n";
+
+    cpiData.forEach(row => {
+
+        csv +=
+            row.cpi +
+            "," +
+            row.cpuTime +
+            "," +
+            row.ipc +
+            "\n";
+
+    });
+
+
+    csv += "\n";
+
+
+    /* Experiment 3 */
+
+    csv +=
+        "EXPERIMENT 3 - PROCESSOR COMPARISON\n";
+
+    csv +=
+        "Processor,Clock Rate (GHz),CPI,CPU Time (s)\n";
+
+    csv +=
+        "A," +
+        processorComparison.processorA.clockRate +
+        "," +
+        processorComparison.processorA.cpi +
+        "," +
+        processorComparison.processorA.cpuTime +
+        "\n";
+
+    csv +=
+        "B," +
+        processorComparison.processorB.clockRate +
+        "," +
+        processorComparison.processorB.cpi +
+        "," +
+        processorComparison.processorB.cpuTime +
+        "\n";
+
+    csv +=
+        "Performance Difference," +
+        processorComparison.speedup +
+        "\n\n";
+
+
+    /* Experiment 4 */
+
+    csv +=
+        "EXPERIMENT 4 - AMDAHL'S LAW\n";
+
+    csv +=
+        "Component Speedup,Overall Speedup\n";
+
+    amdahlData.forEach(row => {
+
+        csv +=
+            row.componentSpeedup +
+            "," +
+            row.overallSpeedup +
+            "\n";
+
+    });
+
+
+    csv += "\n";
+
+
+    /* Experiment 5 */
+
+    csv +=
+        "EXPERIMENT 5 - ARCHITECT'S CHALLENGE\n";
+
+    csv +=
+        "Option,Speedup\n";
+
+    csv +=
+        "Option A - Clock Rate," +
+        challengeResults.optionAClockRate +
+        "\n";
+
+    csv +=
+        "Option B - CPI," +
+        challengeResults.optionBCPI +
+        "\n";
+
+    csv +=
+        "Option C - Amdahl," +
+        challengeResults.optionCAmdahl +
+        "\n";
+
+
+    /* Add CSV */
+
+    zip.file(
+        "Lab1_Results.csv",
+        csv
     );
 
-document
-    .getElementById("clockRate")
-    .addEventListener(
-        "input",
-        updateMainResults
+
+    /* ==========================================
+       GRAPHS
+    ========================================== */
+
+    const graphs = [
+
+        {
+            id: "clockChart",
+            filename:
+                "Clock_Rate_Graph.png"
+        },
+
+        {
+            id: "cpiChart",
+            filename:
+                "CPI_Graph.png"
+        },
+
+        {
+            id: "amdahlChart",
+            filename:
+                "Amdahl_Graph.png"
+        }
+
+    ];
+
+
+    for (
+        const graph of graphs
+    ) {
+
+        const canvas =
+            document.getElementById(
+                graph.id
+            );
+
+        const image =
+            canvas.toDataURL(
+                "image/png"
+            );
+
+        const base64 =
+            image.split(
+                ","
+            )[1];
+
+        zip.file(
+            graph.filename,
+            base64,
+            {
+                base64: true
+            }
+        );
+
+    }
+
+
+    /* ==========================================
+       SUMMARY FILE
+    ========================================== */
+
+    const timestamp =
+        new Date()
+        .toLocaleString();
+
+
+    const summary = `
+
+QUANTITATIVE COMPUTER ARCHITECTURE
+
+LAB 1
+QUANTITATIVE PERFORMANCE ANALYSIS
+
+Simulation Results Summary
+--------------------------------------------
+
+Generated:
+${timestamp}
+
+Instruction Count:
+${document.getElementById("instructionCount").value}
+
+Clock Rate:
+${document.getElementById("clockRate").value} GHz
+
+CPI:
+${document.getElementById("cpi").value}
+
+
+EXPERIMENT 3
+Processor Comparison
+--------------------------------------------
+
+Processor A:
+Clock Rate:
+${processorComparison.processorA.clockRate} GHz
+
+CPI:
+${processorComparison.processorA.cpi}
+
+CPU Time:
+${processorComparison.processorA.cpuTime.toFixed(6)} s
+
+
+Processor B:
+Clock Rate:
+${processorComparison.processorB.clockRate} GHz
+
+CPI:
+${processorComparison.processorB.cpi}
+
+CPU Time:
+${processorComparison.processorB.cpuTime.toFixed(6)} s
+
+
+Performance Difference:
+${processorComparison.speedup.toFixed(4)}×
+
+
+ARCHITECT'S CHALLENGE
+--------------------------------------------
+
+Option A - Increase Clock Rate:
+${challengeResults.optionAClockRate.toFixed(4)}×
+
+Option B - Improve CPI:
+${challengeResults.optionBCPI.toFixed(4)}×
+
+Option C - Amdahl Optimization:
+${challengeResults.optionCAmdahl.toFixed(4)}×
+
+
+Files included in this package:
+
+1. Lab1_Results.csv
+2. Clock_Rate_Graph.png
+3. CPI_Graph.png
+4. Amdahl_Graph.png
+5. Lab1_Summary.txt
+
+Use these files as evidence when preparing
+your Canvas laboratory report.
+
+`;
+
+
+    zip.file(
+        "Lab1_Summary.txt",
+        summary
     );
 
+
+    /* ==========================================
+       CREATE ZIP
+    ========================================== */
+
+    const blob =
+        await zip.generateAsync({
+            type: "blob"
+        });
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+    link.href = url;
+
+    link.download =
+        "Lab1_Quantitative_Performance_Results.zip";
+
+    document.body.appendChild(
+        link
+    );
+
+    link.click();
+
+    document.body.removeChild(
+        link
+    );
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+updateCalculator();
+
+
 document
-    .getElementById("cpi")
+    .getElementById(
+        "instructionCount"
+    )
     .addEventListener(
         "input",
-        updateMainResults
+        updateCalculator
     );
 
 
-// Initial calculations
-updateMainResults();
-generateClockTable();
-generateCPITable();
-calculateAmdahl();
-generateAmdahlTable();
+document
+    .getElementById(
+        "clockRate"
+    )
+    .addEventListener(
+        "input",
+        updateCalculator
+    );
+
+
+document
+    .getElementById(
+        "cpi"
+    )
+    .addEventListener(
+        "input",
+        updateCalculator
+    );
 
 </script>
 
