@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="U program Technology — coding education, programming labs, study resources, and one-on-one STEM tutoring for high school and college students.">
+  <meta name="theme-color" content="#111827">
+  <title>U program Technology | Learn. Practice. Succeed.</title>
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #6d28d9;
+      --primary-2: #8b5cf6;
+      --primary-soft: #ede9fe;
+      --accent: #2563eb;
+      --shadow: 0 18px 50px rgba(15, 23, 42, .08);
+      --radius: 22px;
+      --max: 1180px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #080b14;
+        --surface: #101522;
+        --surface-2: #151b2a;
+        --text: #f8fafc;
+        --muted: #a5b0c2;
+        --border: #253047;
+        --primary-soft: #241b42;
+        --shadow: 0 18px 50px rgba(0, 0, 0, .25);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(109, 40, 217, .10), transparent 32rem),
+        radial-gradient(circle at 90% 12%, rgba(37, 99, 235, .08), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 10px;
+      z-index: 999;
+      padding: 10px 14px;
+      background: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--primary);
+      border-radius: 10px;
+    }
+
+    .skip-link:focus { left: 10px; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    }
+
+    nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      white-space: nowrap;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: white;
+      font-size: 23px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 10px 25px rgba(109, 40, 217, .25);
+    }
+
+    .brand span span { color: var(--primary-2); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      color: var(--muted);
+      font-size: .94rem;
+      font-weight: 650;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta, .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white !important;
+      font-weight: 750;
+      border: 0;
+      box-shadow: 0 10px 24px rgba(109, 40, 217, .20);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .nav-cta:hover, .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(109, 40, 217, .28);
+    }
+
+    .menu-btn {
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 1.1rem;
+    }
+
+    .hero {
+      padding: 92px 0 76px;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      align-items: center;
+      gap: 70px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
+      background: var(--primary-soft);
+      color: var(--primary-2);
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px 0 18px;
+      font-size: clamp(2.8rem, 6vw, 5.3rem);
+      line-height: .98;
+      letter-spacing: -.065em;
+      max-width: 850px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary-2), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 680px;
+      font-size: 1.16rem;
+      color: var(--muted);
+      margin: 0 0 30px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 13px;
+      margin-bottom: 26px;
+    }
+
+    .secondary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      font-weight: 750;
+      transition: transform .2s ease, border-color .2s ease;
+    }
+
+    .secondary-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary-2);
+    }
+
+    .hero-note {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 440px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background:
+        linear-gradient(145deg, color-mix(in srgb, var(--primary) 16%, var(--surface)), var(--surface));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 28px;
+    }
+
+    .code-orb {
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,92,246,.26), transparent 65%);
+      right: -90px;
+      top: -80px;
+    }
+
+    .code-window {
+      position: relative;
+      margin-top: 35px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #0b1020;
+      color: #dbeafe;
+      box-shadow: 0 25px 60px rgba(0,0,0,.25);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .9rem;
+      overflow: hidden;
+    }
+
+    .dots { display: flex; gap: 6px; margin-bottom: 20px; }
+    .dots i { width: 9px; height: 9px; border-radius: 50%; background: #475569; }
+    .code-line { margin: 7px 0; }
+    .purple { color: #c4b5fd; }
+    .blue { color: #93c5fd; }
+    .green { color: #86efac; }
+    .gray { color: #94a3b8; }
+
+    section { padding: 82px 0; }
+    .section-head {
+      max-width: 720px;
+      margin-bottom: 38px;
+    }
+
+    .section-kicker {
+      color: var(--primary-2);
+      font-weight: 800;
+      font-size: .82rem;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 8px 0 12px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+
+    .section-head p { color: var(--muted); margin: 0; }
+
+    .stats {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+      text-align: center;
+    }
+
+    .stat strong { display: block; font-size: 1.6rem; }
+    .stat span { color: var(--muted); font-size: .86rem; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 27px;
+      box-shadow: 0 8px 28px rgba(15,23,42,.04);
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow);
+      border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--primary-soft);
+      color: var(--primary-2);
+      font-size: 1.35rem;
+      margin-bottom: 18px;
+    }
+
+    .card h3 { margin: 0 0 8px; font-size: 1.25rem; }
+    .card p { margin: 0 0 17px; color: var(--muted); }
+
+    .text-link {
+      color: var(--primary-2);
+      font-weight: 750;
+    }
+
+    .course-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .course-tag {
+      align-self: flex-start;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 800;
+      margin-bottom: 13px;
+    }
+
+    .course-card .text-link { margin-top: auto; }
+
+    .feature-band {
+      background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--primary-soft) 55%, var(--surface)));
+      border-block: 1px solid var(--border);
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .resource-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface);
+    }
+
+    .price {
+      font-size: 1.65rem;
+      font-weight: 900;
+      margin: 10px 0 15px;
+    }
+
+    .price small { color: var(--muted); font-size: .85rem; font-weight: 500; }
+
+    .tutor {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .tutor-panel {
+      padding: 34px;
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      background: var(--surface);
+    }
+
+    .tutor-panel.featured {
+      background: linear-gradient(145deg, var(--primary-soft), var(--surface));
+    }
+
+    .session-list {
+      display: grid;
+      gap: 11px;
+      margin: 22px 0;
+    }
+
+    .session {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .session:last-child { border-bottom: 0; }
+    .session span:first-child { font-weight: 700; }
+    .session span:last-child { font-weight: 900; }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .mission {
+      padding: 36px;
+      border-radius: 28px;
+      background: #0b1020;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mission::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,92,246,.35), transparent 68%);
+      right: -70px;
+      bottom: -80px;
+    }
+
+    .mission p { color: #cbd5e1; }
+    .mission h3 { font-size: 1.8rem; margin-top: 0; }
+
+    .faq {
+      display: grid;
+      gap: 10px;
+      max-width: 850px;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: var(--surface);
+      padding: 17px 19px;
+    }
+
+    summary { cursor: pointer; font-weight: 750; }
+    details p { color: var(--muted); margin-bottom: 0; }
+
+    .final-cta {
+      text-align: center;
+      padding: 75px 25px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #111827, #1e1b4b);
+      color: white;
+      overflow: hidden;
+    }
+
+    .final-cta p { color: #cbd5e1; max-width: 650px; margin: 0 auto 25px; }
+    .final-cta .secondary-btn { background: transparent; border-color: #475569; color: white; }
+
+    footer {
+      padding: 35px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a:hover { color: var(--text); }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--primary-2);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid, .about-grid, .tutor { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .resource-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .hero { padding-top: 60px; }
+    }
+
+    @media (max-width: 700px) {
+      .container { width: min(var(--max), calc(100% - 28px)); }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 72px;
+        left: 14px;
+        right: 14px;
+        padding: 15px;
+        flex-direction: column;
+        align-items: stretch;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+      }
+      .nav-links.open { display: flex; }
+      .menu-btn { display: block; }
+      .nav-cta { display: none; }
+      .cards, .stats { grid-template-columns: 1fr; }
+      .resource-card { grid-template-columns: 1fr; }
+      .hero-card { min-height: 350px; }
+      section { padding: 62px 0; }
+      h1 { font-size: clamp(2.55rem, 14vw, 4rem); }
+      .footer-grid { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header>
+    <nav class="container" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="U program Technology home">
+        <div class="logo" aria-hidden="true">U</div>
+        <span>U program <span>Technology</span></span>
+      </a>
+
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navLinks" aria-label="Open navigation">
+        ☰
+      </button>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#courses">Courses</a>
+        <a href="#resources">Resources</a>
+        <a href="#tutoring">Tutoring</a>
+        <a href="#about">About</a>
+        <a class="nav-cta" href="#resources">Explore Resources</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <div class="eyebrow">Teach • Tutor • Review • Succeed</div>
+          <h1>Learn coding with <span class="gradient-text">confidence.</span></h1>
+          <p>
+            U program Technology helps high school and college students understand
+            programming and STEM through hands-on labs, structured review resources,
+            and personalized tutoring.
+          </p>
+
+          <div class="hero-actions">
+            <a class="primary-btn" href="#courses">Explore Free Courses →</a>
+            <a class="secondary-btn" href="#tutoring">Get 1-on-1 Help</a>
+          </div>
+
+          <div class="hero-note">
+            Free learning resources • Practical programming • Online tutoring
+          </div>
+        </div>
+
+        <div class="hero-card reveal" aria-label="Coding education preview">
+          <div class="code-orb" aria-hidden="true"></div>
+          <div style="font-weight:800; position:relative;">Learn by doing.</div>
+          <div class="code-window" aria-hidden="true">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <div class="code-line"><span class="purple">#include</span> <span class="blue">&lt;stdio.h&gt;</span></div>
+            <div class="code-line"><span class="purple">int</span> main() {</div>
+            <div class="code-line">&nbsp;&nbsp;<span class="purple">int</span> total = 0;</div>
+            <div class="code-line">&nbsp;&nbsp;<span class="purple">for</span> (<span class="purple">int</span> i = 0; i &lt; 5; i++) {</div>
+            <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;total += i;</div>
+            <div class="code-line">&nbsp;&nbsp;}</div>
+            <div class="code-line">&nbsp;&nbsp;<span class="blue">printf</span>(<span class="green">"%d"</span>, total);</div>
+            <div class="code-line">}</div>
+            <div class="code-line gray">// Understand it. Don't just memorize it.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="U program Technology highlights">
+      <div class="container">
+        <div class="stats reveal">
+          <div class="stat"><strong>Free</strong><span>Hands-on learning resources</span></div>
+          <div class="stat"><strong>Practical</strong><span>Labs and coding practice</span></div>
+          <div class="stat"><strong>1-on-1</strong><span>Personalized tutoring</span></div>
+          <div class="stat"><strong>STEM</strong><span>Built for student success</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="courses">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-kicker">Free learning</div>
+          <h2>Start with a course. Build your skills.</h2>
+          <p>
+            Explore structured programming material designed to help students move
+            from reading code to actually understanding and writing it.
+          </p>
+        </div>
+
+        <div class="cards">
+          <article class="card course-card reveal">
+            <div class="icon" aria-hidden="true">&lt;/&gt;</div>
+            <div class="course-tag">FREE COURSE</div>
+            <h3>Quantitative Computer Architecture</h3>
+            <p>
+              Work through six hands-on labs covering core concepts in quantitative
+              computer architecture.
+            </p>
+            <a class="text-link" href="/quantitative-computer-architecture/">View Course →</a>
+          </article>
+
+          <article class="card course-card reveal">
+            <div class="icon" aria-hidden="true">C</div>
+            <div class="course-tag">COMING SOON</div>
+            <h3>C Programming Foundations</h3>
+            <p>
+              Learn variables, conditionals, loops, functions, arrays, debugging,
+              and problem-solving through guided practice.
+            </p>
+            <a class="text-link" href="#resources">See C Resources →</a>
+          </article>
+
+          <article class="card course-card reveal">
+            <div class="icon" aria-hidden="true">Py</div>
+            <div class="course-tag">COMING SOON</div>
+            <h3>Python Programming</h3>
+            <p>
+              Build programming fundamentals with Python through examples,
+              exercises, tracing, and practical coding problems.
+            </p>
+            <a class="text-link" href="#resources">Explore Resources →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-band" id="resources">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-kicker">Study smarter</div>
+          <h2>Resources for when class isn't enough.</h2>
+          <p>
+            Use free course material to learn the concepts, then use focused review
+            resources to prepare for quizzes, midterms, and finals.
+          </p>
+        </div>
+
+        <div class="resource-grid">
+          <article class="resource-card reveal">
+            <div>
+              <div class="course-tag">DIGITAL DOWNLOAD</div>
+              <h3>Intro to C Programming Review Packet</h3>
+              <p>
+                Code tracing, output prediction, debugging, loops, functions,
+                arrays, 2D arrays, multiple choice, and programming challenges.
+              </p>
+              <div class="price">$4.99 <small>instant PDF</small></div>
+              <!-- Replace this URL with your exact public Gumroad product URL if different. -->
+              <a class="primary-btn" href="https://gumroad.com/l/jqdpeo">Get the Review Packet →</a>
+            </div>
+            <div class="icon" aria-hidden="true">📘</div>
+          </article>
+
+          <article class="resource-card reveal">
+            <div>
+              <div class="course-tag">FREE + PREMIUM</div>
+              <h3>More Programming Resources</h3>
+              <p>
+                More review packets, practice problems, cheat sheets, and study
+                resources will be added as U program Technology grows.
+              </p>
+              <a class="secondary-btn" href="#tutoring">Need Personalized Help?</a>
+            </div>
+            <div class="icon" aria-hidden="true">🚀</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="tutoring">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-kicker">Personalized support</div>
+          <h2>Don't just get the answer. Learn how to solve it.</h2>
+          <p>
+            One-on-one tutoring for students who need help understanding concepts,
+            debugging code, preparing for exams, or building programming confidence.
+          </p>
+        </div>
+
+        <div class="tutor">
+          <div class="tutor-panel featured reveal">
+            <div class="icon" aria-hidden="true">🎓</div>
+            <h3>Online STEM Tutoring</h3>
+            <p>
+              Sessions are customized around your course, assignments, study guide,
+              and current skill level.
+            </p>
+
+            <div class="session-list">
+              <div class="session"><span>30-Minute Quick Help</span><span>$35</span></div>
+              <div class="session"><span>60-Minute Tutoring</span><span>$60</span></div>
+              <div class="session"><span>90-Minute Deep Dive</span><span>$85</span></div>
+              <div class="session"><span>2-Hour Exam Prep</span><span>$120</span></div>
+            </div>
+
+            <!-- Replace this URL with your tutoring Gumroad product URL when published. -->
+            <a class="primary-btn" href="https://gumroad.com/">Book a Tutoring Session →</a>
+          </div>
+
+          <div class="tutor-panel reveal">
+            <h3>What can we work on?</h3>
+            <div class="cards" style="grid-template-columns:1fr 1fr; margin-top:20px;">
+              <div class="card" style="padding:18px; box-shadow:none;"><strong>C / C++</strong><p style="font-size:.9rem;">Programming fundamentals, pointers, arrays, functions, debugging.</p></div>
+              <div class="card" style="padding:18px; box-shadow:none;"><strong>Python</strong><p style="font-size:.9rem;">Syntax, loops, functions, data structures, problem solving.</p></div>
+              <div class="card" style="padding:18px; box-shadow:none;"><strong>Computer Science</strong><p style="font-size:.9rem;">Algorithms, data structures, architecture, and core concepts.</p></div>
+              <div class="card" style="padding:18px; box-shadow:none;"><strong>STEM</strong><p style="font-size:.9rem;">Math and technical coursework with guided practice.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="feature-band">
+      <div class="container about-grid">
+        <div class="reveal">
+          <div class="section-kicker">About U program Technology</div>
+          <h2>Making technical education easier to understand.</h2>
+          <p style="color:var(--muted);">
+            U program Technology is being built to give students a place where they
+            can learn programming, practice with real problems, and get personalized
+            help when they need it.
+          </p>
+          <p style="color:var(--muted);">
+            The goal is simple: make difficult technical subjects less intimidating
+            and help students become confident problem solvers.
+          </p>
+        </div>
+
+        <div class="mission reveal">
+          <h3>Learn. Practice. Succeed.</h3>
+          <p>
+            Free learning resources get students started. Review products give them
+            focused practice. Tutoring provides the personalized support that helps
+            them get unstuck.
+          </p>
+          <strong>U program Technology</strong>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-kicker">FAQ</div>
+          <h2>Questions students may have</h2>
+        </div>
+
+        <div class="faq">
+          <details class="reveal">
+            <summary>Who is U program Technology for?</summary>
+            <p>Our resources are designed primarily for high school and college students learning programming and STEM subjects.</p>
+          </details>
+          <details class="reveal">
+            <summary>Are the course resources free?</summary>
+            <p>Selected courses and labs are free. Premium review packets and tutoring are offered separately.</p>
+          </details>
+          <details class="reveal">
+            <summary>What happens during tutoring?</summary>
+            <p>We work through your course material, practice problems, debugging tasks, or exam topics with an emphasis on understanding the process rather than simply giving answers.</p>
+          </details>
+          <details class="reveal">
+            <summary>What programming languages will be offered?</summary>
+            <p>C and Python are planned starting areas, with additional computer science and STEM topics added over time.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="final-cta reveal">
+          <div class="section-kicker">Ready to start?</div>
+          <h2>Build your skills one problem at a time.</h2>
+          <p>
+            Explore the free labs, grab a review resource, or get personalized
+            tutoring when you need an extra push.
+          </p>
+          <div class="hero-actions" style="justify-content:center; margin-bottom:0;">
+            <a class="primary-btn" href="#courses">Explore Courses</a>
+            <a class="secondary-btn" href="#tutoring">Get Tutoring</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div><strong>U program Technology</strong><br>Teach • Tutor • Review • Succeed</div>
+      <div class="footer-links">
+        <a href="#courses">Courses</a>
+        <a href="#resources">Resources</a>
+        <a href="#tutoring">Tutoring</a>
+        <a href="#about">About</a>
+      </div>
+      <div>© <span id="year"></span> U program Technology</div>
+    </div>
+  </footer>
+
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const navLinks = document.getElementById("navLinks");
+
+    menuBtn.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      menuBtn.setAttribute("aria-expanded", String(open));
+      menuBtn.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        menuBtn.setAttribute("aria-expanded", "false");
+        menuBtn.setAttribute("aria-label", "Open navigation");
+      });
+    });
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
