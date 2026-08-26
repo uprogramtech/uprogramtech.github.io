@@ -1,0 +1,3301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>
+Quantitative Computer Architecture
+— Lab 2
+</title>
+
+<!-- JSZip for results package -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+header {
+    background: #17365d;
+    color: white;
+    padding: 35px 40px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+}
+
+header p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.container {
+    max-width: 1250px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.08);
+}
+
+h2 {
+    color: #17365d;
+    border-bottom:
+        2px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: #274e75;
+}
+
+.info {
+    background: #eef4fb;
+    border-left:
+        5px solid #17365d;
+    padding: 15px 20px;
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(220px, 1fr)
+        );
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input,
+select,
+textarea {
+    padding: 10px;
+    border:
+        1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+button {
+    background: #17365d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 8px 5px 8px 0;
+}
+
+button:hover {
+    background: #0f2745;
+}
+
+.secondary {
+    background: #64748b;
+}
+
+.green {
+    background: #2f6f4e;
+}
+
+.green:hover {
+    background: #24583e;
+}
+
+.results {
+    display: grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(170px, 1fr)
+        );
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.result-box {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+}
+
+.result-label {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.result-value {
+    font-size: 23px;
+    font-weight: bold;
+    margin-top: 6px;
+    color: #17365d;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border:
+        1px solid #dbe2ea;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background: #17365d;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.pipeline-wrapper {
+    overflow-x: auto;
+    margin-top: 25px;
+}
+
+.pipeline {
+    display: grid;
+    min-width: 900px;
+    border:
+        1px solid #cbd5e1;
+}
+
+.pipeline-row {
+    display: grid;
+    grid-template-columns:
+        180px repeat(
+            20,
+            55px
+        );
+}
+
+.pipeline-cell {
+    border:
+        1px solid #dbe2ea;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.pipeline-header {
+    background: #17365d;
+    color: white;
+    font-weight: bold;
+}
+
+.instruction {
+    justify-content: flex-start;
+    padding-left: 10px;
+    font-weight: bold;
+    background: #f1f5f9;
+}
+
+.stage {
+    background: #eef4fb;
+    font-weight: bold;
+}
+
+.stall {
+    background: #f8e8e8;
+    color: #9b1c1c;
+    font-weight: bold;
+}
+
+.forward {
+    background: #e8f5ec;
+    color: #24583e;
+    font-weight: bold;
+}
+
+.predictor-state {
+    background: #f8fafc;
+    border:
+        1px solid #dbe2ea;
+    border-radius: 8px;
+    padding: 18px;
+    margin-top: 20px;
+}
+
+.state-box {
+    display: inline-block;
+    padding: 12px 18px;
+    margin: 5px;
+    border-radius: 6px;
+    background: #eef4fb;
+    border:
+        1px solid #cbd5e1;
+    font-weight: bold;
+}
+
+canvas {
+    width: 100%;
+    height: 380px;
+    margin-top: 20px;
+    border:
+        1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+}
+
+.export-box {
+    background: #eef7f1;
+    border:
+        2px solid #2f6f4e;
+    text-align: center;
+}
+
+.export-box h2 {
+    color: #2f6f4e;
+    border: none;
+}
+
+.challenge {
+    background: #fff8e7;
+    border:
+        2px solid #d9a441;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.correct {
+    color: #2f6f4e;
+    font-weight: bold;
+}
+
+.incorrect {
+    color: #a33a3a;
+    font-weight: bold;
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 30px;
+}
+
+@media(max-width:700px) {
+
+    header {
+        padding: 25px 20px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>
+Quantitative Computer Architecture
+</h1>
+
+<p>
+Lab 2 — Pipelining & Branch Prediction
+</p>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     INTRODUCTION
+===================================================== -->
+
+<section class="card">
+
+<h2>
+Lab 2 — Pipelining & Branch Prediction
+</h2>
+
+<div class="info">
+
+<strong>
+Purpose:
+</strong>
+
+Use the simulator to investigate how
+pipelining, hazards, stalls, forwarding,
+and branch prediction affect processor
+performance.
+
+<br><br>
+
+<strong>
+Key relationship:
+</strong>
+
+Effective CPI = Base CPI + Pipeline Stall Cycles
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     EXPERIMENT 1
+===================================================== -->
+
+<section class="card">
+
+<h2>
+Experiment 1 — Pipeline Timing
+</h2>
+
+<p>
+
+Compare non-pipelined and pipelined execution
+and investigate how pipeline depth affects
+instruction throughput.
+
+</p>
+
+
+<div class="controls">
+
+<div class="control-group">
+
+<label>
+Number of Instructions
+</label>
+
+<input
+id="numInstructions"
+type="number"
+value="8"
+min="1"
+max="15"
+>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Pipeline Stages
+</label>
+
+<select id="pipelineStages">
+
+<option value="3">
+3 stages
+</option>
+
+<option value="5" selected>
+5 stages
+</option>
+
+<option value="7">
+7 stages
+</option>
+
+</select>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Base CPI
+</label>
+
+<input
+id="baseCPI"
+type="number"
+value="1"
+step="0.1"
+min="0.1"
+>
+
+</div>
+
+</div>
+
+
+<button
+onclick="runPipelineExperiment()"
+>
+Run Pipeline Experiment
+</button>
+
+
+<div class="results">
+
+<div class="result-box">
+
+<div class="result-label">
+Non-Pipelined Cycles
+</div>
+
+<div
+class="result-value"
+id="nonPipelineCycles"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Pipelined Cycles
+</div>
+
+<div
+class="result-value"
+id="pipelineCycles"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Pipeline Speedup
+</div>
+
+<div
+class="result-value"
+id="pipelineSpeedup"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Throughput
+</div>
+
+<div
+class="result-value"
+id="pipelineThroughput"
+>
+—
+</div>
+
+</div>
+
+</div>
+
+
+<div class="pipeline-wrapper">
+
+<div
+id="pipelineVisualization"
+class="pipeline"
+>
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     EXPERIMENT 2
+===================================================== -->
+
+<section class="card">
+
+<h2>
+Experiment 2 — Pipeline Hazards
+</h2>
+
+<p>
+
+Investigate data hazards and the effect of
+forwarding and stalls.
+
+</p>
+
+
+<div class="controls">
+
+<div class="control-group">
+
+<label>
+Forwarding
+</label>
+
+<select id="forwarding">
+
+<option value="off">
+OFF
+</option>
+
+<option value="on" selected>
+ON
+</option>
+
+</select>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Hazard Detection
+</label>
+
+<select id="hazardDetection">
+
+<option value="off">
+OFF
+</option>
+
+<option value="on" selected>
+ON
+</option>
+
+</select>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Load-Use Hazard Frequency
+</label>
+
+<input
+id="hazardFrequency"
+type="number"
+value="25"
+min="0"
+max="100"
+>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Stall Penalty (cycles)
+</label>
+
+<input
+id="stallPenalty"
+type="number"
+value="1"
+min="1"
+>
+
+</div>
+
+</div>
+
+
+<button
+onclick="runHazardExperiment()"
+>
+Run Hazard Experiment
+</button>
+
+
+<div class="results">
+
+<div class="result-box">
+
+<div class="result-label">
+Instructions
+</div>
+
+<div
+class="result-value"
+id="hazardInstructions"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Stall Cycles
+</div>
+
+<div
+class="result-value"
+id="stallCycles"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Effective CPI
+</div>
+
+<div
+class="result-value"
+id="effectiveCPI"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Speedup
+</div>
+
+<div
+class="result-value"
+id="hazardSpeedup"
+>
+—
+</div>
+
+</div>
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Configuration
+</th>
+
+<th>
+Stalls
+</th>
+
+<th>
+CPI
+</th>
+
+<th>
+Speedup
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="hazardTable">
+
+</tbody>
+
+</table>
+
+
+<canvas
+id="hazardChart"
+>
+</canvas>
+
+</section>
+
+
+
+<!-- =====================================================
+     EXPERIMENT 3
+===================================================== -->
+
+<section class="card">
+
+<h2>
+Experiment 3 — Branch Prediction
+</h2>
+
+<p>
+
+Compare static and dynamic branch prediction
+using a branch execution trace.
+
+</p>
+
+
+<div class="controls">
+
+<div class="control-group">
+
+<label>
+Prediction Strategy
+</label>
+
+<select id="predictionStrategy">
+
+<option value="alwaysTaken">
+Always Taken
+</option>
+
+<option value="alwaysNotTaken">
+Always Not Taken
+</option>
+
+<option value="oneBit">
+1-Bit Dynamic
+</option>
+
+<option value="twoBit">
+2-Bit Dynamic
+</option>
+
+</select>
+
+</div>
+
+
+<div class="control-group">
+
+<label>
+Branch Penalty (cycles)
+</label>
+
+<input
+id="branchPenalty"
+type="number"
+value="12"
+min="1"
+>
+
+</div>
+
+</div>
+
+
+<div class="info">
+
+<strong>
+Branch Trace:
+</strong>
+
+<span id="branchTrace">
+T T T T N T T T N N T T
+</span>
+
+<br>
+
+T = Taken &nbsp;&nbsp;
+N = Not Taken
+
+</div>
+
+
+<button
+onclick="runBranchExperiment()"
+>
+Run Branch Prediction Experiment
+</button>
+
+
+<div class="results">
+
+<div class="result-box">
+
+<div class="result-label">
+Correct Predictions
+</div>
+
+<div
+class="result-value"
+id="correctPredictions"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Mispredictions
+</div>
+
+<div
+class="result-value"
+id="mispredictions"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Prediction Accuracy
+</div>
+
+<div
+class="result-value"
+id="predictionAccuracy"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Misprediction Rate
+</div>
+
+<div
+class="result-value"
+id="mispredictionRate"
+>
+—
+</div>
+
+</div>
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Branch
+</th>
+
+<th>
+Actual
+</th>
+
+<th>
+Prediction
+</th>
+
+<th>
+Result
+</th>
+
+<th>
+Predictor State
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="predictionTable">
+
+</tbody>
+
+</table>
+
+
+<div
+id="predictorState"
+class="predictor-state"
+>
+
+<strong>
+Predictor State Visualization
+</strong>
+
+<p>
+Run an experiment to see predictor state changes.
+</p>
+
+</div>
+
+
+<canvas
+id="predictionChart"
+>
+</canvas>
+
+</section>
+
+
+
+<!-- =====================================================
+     EXPERIMENT 4
+===================================================== -->
+
+<section class="card">
+
+<h2>
+Experiment 4 — Architect's Challenge
+</h2>
+
+<div class="challenge">
+
+<p>
+
+A processor has the following characteristics:
+
+</p>
+
+<table>
+
+<tr>
+
+<th>
+Parameter
+</th>
+
+<th>
+Value
+</th>
+
+</tr>
+
+<tr>
+
+<td>
+Base CPI
+</td>
+
+<td>
+1.0
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+Clock Rate
+</td>
+
+<td>
+4 GHz
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+Branch Frequency
+</td>
+
+<td>
+20%
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+Misprediction Rate
+</td>
+
+<td>
+8%
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+Branch Penalty
+</td>
+
+<td>
+12 cycles
+</td>
+
+</tr>
+
+</table>
+
+<br>
+
+<p>
+
+You have funding for <strong>one</strong>
+architectural improvement.
+
+</p>
+
+<ul>
+
+<li>
+<strong>Option A:</strong>
+Increase clock rate from
+4 GHz to 5 GHz.
+</li>
+
+<li>
+<strong>Option B:</strong>
+Improve CPI from 1.5 to 1.1.
+</li>
+
+<li>
+<strong>Option C:</strong>
+Reduce branch misprediction rate
+from 8% to 4%.
+</li>
+
+</ul>
+
+</div>
+
+
+<button
+onclick="runArchitectChallenge()"
+>
+Evaluate Architectural Options
+</button>
+
+
+<div class="results">
+
+<div class="result-box">
+
+<div class="result-label">
+Option A
+</div>
+
+<div
+class="result-value"
+id="challengeA"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Option B
+</div>
+
+<div
+class="result-value"
+id="challengeB"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Option C
+</div>
+
+<div
+class="result-value"
+id="challengeC"
+>
+—
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="result-label">
+Best Option
+</div>
+
+<div
+class="result-value"
+id="bestOption"
+>
+—
+</div>
+
+</div>
+
+</div>
+
+
+<div
+id="challengeExplanation"
+class="info"
+>
+
+Run the challenge to compare the architectural options.
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     EXPORT
+===================================================== -->
+
+<section class="card export-box">
+
+<h2>
+Export Lab 2 Results
+</h2>
+
+<p>
+
+Run the experiments and then export your complete
+experimental dataset.
+
+</p>
+
+<p>
+
+The ZIP file will contain:
+
+</p>
+
+<ul style="
+text-align:left;
+max-width:500px;
+margin:auto;
+">
+
+<li>
+Lab2_Results.csv
+</li>
+
+<li>
+Pipeline_Timing_Graph.png
+</li>
+
+<li>
+Hazard_CPI_Graph.png
+</li>
+
+<li>
+Branch_Prediction_Graph.png
+</li>
+
+<li>
+Lab2_Summary.txt
+</li>
+
+</ul>
+
+<br>
+
+<button
+class="green"
+onclick="exportLab2()"
+>
+
+⬇ Export Complete Lab 2 Results
+
+</button>
+
+</section>
+
+
+</div>
+
+
+<footer>
+
+Quantitative Computer Architecture<br>
+Lab 2 — Pipelining & Branch Prediction
+
+</footer>
+
+
+
+<script>
+
+/* =====================================================
+   GLOBAL DATA
+===================================================== */
+
+let pipelineResults = {};
+
+let hazardResults = {};
+
+let branchResults = {};
+
+let challengeResults = {};
+
+
+
+/* =====================================================
+   EXPERIMENT 1
+===================================================== */
+
+function runPipelineExperiment() {
+
+    const n =
+        Number(
+            document.getElementById(
+                "numInstructions"
+            ).value
+        );
+
+    const stages =
+        Number(
+            document.getElementById(
+                "pipelineStages"
+            ).value
+        );
+
+    const baseCPI =
+        Number(
+            document.getElementById(
+                "baseCPI"
+            ).value
+        );
+
+
+    /*
+        Non-pipelined model:
+        each instruction requires
+        'stages' cycles.
+    */
+
+    const nonPipeline =
+        n * stages;
+
+
+    /*
+        Ideal pipeline:
+        first instruction requires
+        'stages' cycles,
+        subsequent instructions
+        complete at one per cycle.
+    */
+
+    const pipeline =
+        stages +
+        (n - 1) *
+        baseCPI;
+
+
+    const speedup =
+        nonPipeline /
+        pipeline;
+
+
+    const throughput =
+        n /
+        pipeline;
+
+
+    pipelineResults = {
+
+        instructions: n,
+
+        stages: stages,
+
+        baseCPI: baseCPI,
+
+        nonPipelinedCycles:
+            nonPipeline,
+
+        pipelinedCycles:
+            pipeline,
+
+        speedup:
+            speedup,
+
+        throughput:
+            throughput
+
+    };
+
+
+    document.getElementById(
+        "nonPipelineCycles"
+    ).textContent =
+        nonPipeline.toFixed(2);
+
+
+    document.getElementById(
+        "pipelineCycles"
+    ).textContent =
+        pipeline.toFixed(2);
+
+
+    document.getElementById(
+        "pipelineSpeedup"
+    ).textContent =
+        speedup.toFixed(3) + "×";
+
+
+    document.getElementById(
+        "pipelineThroughput"
+    ).textContent =
+        throughput.toFixed(3) +
+        " instr/cycle";
+
+
+    drawPipeline(
+        n,
+        stages
+    );
+
+}
+
+
+
+/* =====================================================
+   PIPELINE VISUALIZATION
+===================================================== */
+
+function drawPipeline(
+    instructions,
+    stages
+) {
+
+    const container =
+        document.getElementById(
+            "pipelineVisualization"
+        );
+
+    const stageNames =
+        stages === 3
+            ? ["IF", "EX", "WB"]
+            : stages === 5
+            ? ["IF", "ID", "EX", "MEM", "WB"]
+            : [
+                "IF",
+                "ID",
+                "EX1",
+                "EX2",
+                "EX3",
+                "MEM",
+                "WB"
+            ];
+
+
+    let maxCycles =
+        stages +
+        instructions;
+
+
+    let html = "";
+
+    html += `
+        <div class="pipeline-row">
+            <div
+                class="pipeline-cell pipeline-header"
+            >
+                Instruction
+            </div>
+    `;
+
+
+    for (
+        let c = 1;
+        c <= maxCycles;
+        c++
+    ) {
+
+        html += `
+            <div
+                class="pipeline-cell pipeline-header"
+            >
+                C${c}
+            </div>
+        `;
+
+    }
+
+    html += `</div>`;
+
+
+    for (
+        let i = 0;
+        i < instructions;
+        i++
+    ) {
+
+        html += `
+            <div class="pipeline-row">
+                <div
+                    class="pipeline-cell instruction"
+                >
+                    I${i + 1}
+                </div>
+        `;
+
+
+        for (
+            let c = 1;
+            c <= maxCycles;
+            c++
+        ) {
+
+            const stageIndex =
+                c -
+                i -
+                1;
+
+
+            if (
+                stageIndex >= 0 &&
+                stageIndex < stageNames.length
+            ) {
+
+                html += `
+                    <div
+                        class="pipeline-cell stage"
+                    >
+                        ${stageNames[stageIndex]}
+                    </div>
+                `;
+
+            }
+
+            else {
+
+                html += `
+                    <div
+                        class="pipeline-cell"
+                    >
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        html += `</div>`;
+
+    }
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+
+/* =====================================================
+   EXPERIMENT 2
+===================================================== */
+
+function runHazardExperiment() {
+
+    const instructions =
+        Number(
+            document.getElementById(
+                "numInstructions"
+            ).value
+        );
+
+
+    const frequency =
+        Number(
+            document.getElementById(
+                "hazardFrequency"
+            ).value
+        ) / 100;
+
+
+    const penalty =
+        Number(
+            document.getElementById(
+                "stallPenalty"
+            ).value
+        );
+
+
+    const forwarding =
+        document.getElementById(
+            "forwarding"
+        ).value;
+
+
+    const detection =
+        document.getElementById(
+            "hazardDetection"
+        ).value;
+
+
+    const base =
+        Number(
+            document.getElementById(
+                "baseCPI"
+            ).value
+        );
+
+
+    /*
+        Simplified deterministic model:
+        expected hazards =
+        instructions × frequency
+    */
+
+    let stalls;
+
+
+    if (
+        detection === "off"
+    ) {
+
+        stalls =
+            instructions *
+            frequency *
+            penalty *
+            2;
+
+    }
+
+    else if (
+        forwarding === "on"
+    ) {
+
+        stalls =
+            instructions *
+            frequency *
+            penalty *
+            0.5;
+
+    }
+
+    else {
+
+        stalls =
+            instructions *
+            frequency *
+            penalty;
+
+    }
+
+
+    const cpi =
+        base +
+        (
+            stalls /
+            instructions
+        );
+
+
+    const idealCPI =
+        base;
+
+
+    const speedup =
+        cpi /
+        idealCPI;
+
+
+    hazardResults = {
+
+        instructions:
+            instructions,
+
+        frequency:
+            frequency,
+
+        penalty:
+            penalty,
+
+        forwarding:
+            forwarding,
+
+        detection:
+            detection,
+
+        stalls:
+            stalls,
+
+        cpi:
+            cpi,
+
+        speedup:
+            speedup
+
+    };
+
+
+    document.getElementById(
+        "hazardInstructions"
+    ).textContent =
+        instructions;
+
+
+    document.getElementById(
+        "stallCycles"
+    ).textContent =
+        stalls.toFixed(2);
+
+
+    document.getElementById(
+        "effectiveCPI"
+    ).textContent =
+        cpi.toFixed(3);
+
+
+    document.getElementById(
+        "hazardSpeedup"
+    ).textContent =
+        speedup.toFixed(3) + "×";
+
+
+    createHazardTable(
+        instructions,
+        frequency,
+        penalty,
+        base
+    );
+
+
+    drawChart(
+        "hazardChart",
+        ["No Forwarding",
+         "Forwarding",
+         "Detection Off"],
+        [
+            base +
+            frequency *
+            penalty,
+
+            base +
+            frequency *
+            penalty *
+            0.5,
+
+            base +
+            frequency *
+            penalty *
+            2
+        ],
+        "Configuration",
+        "Effective CPI"
+    );
+
+}
+
+
+
+/* =====================================================
+   HAZARD TABLE
+===================================================== */
+
+function createHazardTable(
+    instructions,
+    frequency,
+    penalty,
+    base
+) {
+
+    const configs = [
+
+        {
+            name:
+                "No Forwarding",
+            stalls:
+                instructions *
+                frequency *
+                penalty
+        },
+
+        {
+            name:
+                "Forwarding Enabled",
+            stalls:
+                instructions *
+                frequency *
+                penalty *
+                0.5
+        },
+
+        {
+            name:
+                "Hazard Detection Off",
+            stalls:
+                instructions *
+                frequency *
+                penalty *
+                2
+        }
+
+    ];
+
+
+    let html = "";
+
+
+    configs.forEach(
+        config => {
+
+            const cpi =
+                base +
+                config.stalls /
+                instructions;
+
+            const speedup =
+                cpi /
+                base;
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        ${config.name}
+                    </td>
+
+                    <td>
+                        ${config.stalls.toFixed(2)}
+                    </td>
+
+                    <td>
+                        ${cpi.toFixed(3)}
+                    </td>
+
+                    <td>
+                        ${speedup.toFixed(3)}×
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    document.getElementById(
+        "hazardTable"
+    ).innerHTML =
+        html;
+
+}
+
+
+
+/* =====================================================
+   EXPERIMENT 3
+===================================================== */
+
+function runBranchExperiment() {
+
+    const strategy =
+        document.getElementById(
+            "predictionStrategy"
+        ).value;
+
+
+    const penalty =
+        Number(
+            document.getElementById(
+                "branchPenalty"
+            ).value
+        );
+
+
+    const trace =
+        document.getElementById(
+            "branchTrace"
+        ).textContent
+        .trim()
+        .split(/\s+/);
+
+
+    let predictorState =
+        strategy === "twoBit"
+            ? 2
+            : strategy === "oneBit"
+            ? false
+            : null;
+
+
+    let correct = 0;
+
+    let incorrect = 0;
+
+    let rows = "";
+
+    let states = [];
+
+
+    trace.forEach(
+        (actual, index) => {
+
+            let prediction;
+
+            let stateDisplay;
+
+
+            if (
+                strategy ===
+                "alwaysTaken"
+            ) {
+
+                prediction =
+                    "T";
+
+                stateDisplay =
+                    "Static";
+
+            }
+
+            else if (
+                strategy ===
+                "alwaysNotTaken"
+            ) {
+
+                prediction =
+                    "N";
+
+                stateDisplay =
+                    "Static";
+
+            }
+
+            else if (
+                strategy ===
+                "oneBit"
+            ) {
+
+                prediction =
+                    predictorState
+                    ? "T"
+                    : "N";
+
+                stateDisplay =
+                    predictorState
+                    ? "Taken"
+                    : "Not Taken";
+
+
+                predictorState =
+                    actual === "T";
+
+            }
+
+            else {
+
+                /*
+                    2-bit states:
+
+                    0 = Strong NT
+                    1 = Weak NT
+                    2 = Weak T
+                    3 = Strong T
+                */
+
+                prediction =
+                    predictorState >= 2
+                    ? "T"
+                    : "N";
+
+
+                const names = [
+
+                    "Strong Not Taken",
+
+                    "Weak Not Taken",
+
+                    "Weak Taken",
+
+                    "Strong Taken"
+
+                ];
+
+
+                stateDisplay =
+                    names[
+                        predictorState
+                    ];
+
+
+                if (
+                    actual === "T"
+                ) {
+
+                    predictorState =
+                        Math.min(
+                            3,
+                            predictorState + 1
+                        );
+
+                }
+
+                else {
+
+                    predictorState =
+                        Math.max(
+                            0,
+                            predictorState - 1
+                        );
+
+                }
+
+            }
+
+
+            const isCorrect =
+                prediction ===
+                actual;
+
+
+            if (
+                isCorrect
+            ) {
+
+                correct++;
+
+            }
+
+            else {
+
+                incorrect++;
+
+            }
+
+
+            states.push(
+                stateDisplay
+            );
+
+
+            rows += `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${actual}
+                    </td>
+
+                    <td>
+                        ${prediction}
+                    </td>
+
+                    <td class="${
+                        isCorrect
+                            ? "correct"
+                            : "incorrect"
+                    }">
+
+                        ${
+                            isCorrect
+                                ? "Correct"
+                                : "Misprediction"
+                        }
+
+                    </td>
+
+                    <td>
+                        ${stateDisplay}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    const total =
+        trace.length;
+
+
+    const accuracy =
+        correct /
+        total *
+        100;
+
+
+    const mispredictionRate =
+        incorrect /
+        total *
+        100;
+
+
+    branchResults = {
+
+        strategy:
+            strategy,
+
+        penalty:
+            penalty,
+
+        total:
+            total,
+
+        correct:
+            correct,
+
+        incorrect:
+            incorrect,
+
+        accuracy:
+            accuracy,
+
+        mispredictionRate:
+            mispredictionRate,
+
+        states:
+            states
+
+    };
+
+
+    document.getElementById(
+        "correctPredictions"
+    ).textContent =
+        correct;
+
+
+    document.getElementById(
+        "mispredictions"
+    ).textContent =
+        incorrect;
+
+
+    document.getElementById(
+        "predictionAccuracy"
+    ).textContent =
+        accuracy.toFixed(2) + "%";
+
+
+    document.getElementById(
+        "mispredictionRate"
+    ).textContent =
+        mispredictionRate.toFixed(2) + "%";
+
+
+    document.getElementById(
+        "predictionTable"
+    ).innerHTML =
+        rows;
+
+
+    let stateHTML =
+        "<strong>Predictor State Visualization</strong><br><br>";
+
+
+    states.forEach(
+        (state, index) => {
+
+            stateHTML += `
+
+                <span
+                    class="state-box"
+                >
+
+                    B${index + 1}:
+                    ${state}
+
+                </span>
+
+            `;
+
+        }
+    );
+
+
+    document.getElementById(
+        "predictorState"
+    ).innerHTML =
+        stateHTML;
+
+
+    drawChart(
+        "predictionChart",
+        ["Correct", "Mispredicted"],
+        [correct, incorrect],
+        "Prediction Result",
+        "Number of Branches"
+    );
+
+}
+
+
+
+/* =====================================================
+   EXPERIMENT 4
+===================================================== */
+
+function runArchitectChallenge() {
+
+    const baseCPI = 1.0;
+
+    const baseClock = 4;
+
+    const branchFrequency =
+        0.20;
+
+    const baseMisPrediction =
+        0.08;
+
+    const penalty =
+        12;
+
+
+    /*
+        Branch contribution to CPI
+    */
+
+    const branchCPI =
+        branchFrequency *
+        baseMisPrediction *
+        penalty;
+
+
+    const totalCPI =
+        baseCPI +
+        branchCPI;
+
+
+    /*
+        Option A:
+        Clock 4 → 5 GHz
+    */
+
+    const optionACPI =
+        totalCPI;
+
+    const optionAClock =
+        5;
+
+
+    /*
+        Option B:
+        CPI 1.5 → 1.1
+    */
+
+    const optionBCPI =
+        1.1 +
+        branchCPI;
+
+    const optionBClock =
+        4;
+
+
+    /*
+        Option C:
+        misprediction 8% → 4%
+    */
+
+    const optionCCPI =
+        baseCPI +
+        (
+            branchFrequency *
+            0.04 *
+            penalty
+        );
+
+    const optionCClock =
+        4;
+
+
+    /*
+        Normalize execution time.
+    */
+
+    const timeA =
+        optionACPI /
+        optionAClock;
+
+
+    const timeB =
+        optionBCPI /
+        optionBClock;
+
+
+    const timeC =
+        optionCCPI /
+        optionCClock;
+
+
+    const baseline =
+        totalCPI /
+        baseClock;
+
+
+    const speedupA =
+        baseline /
+        timeA;
+
+
+    const speedupB =
+        baseline /
+        timeB;
+
+
+    const speedupC =
+        baseline /
+        timeC;
+
+
+    const options = {
+
+        "Option A":
+            speedupA,
+
+        "Option B":
+            speedupB,
+
+        "Option C":
+            speedupC
+
+    };
+
+
+    let best =
+        "Option A";
+
+
+    Object.keys(
+        options
+    ).forEach(
+        key => {
+
+            if (
+                options[key] >
+                options[best]
+            ) {
+
+                best = key;
+
+            }
+
+        }
+    );
+
+
+    challengeResults = {
+
+        baselineCPI:
+            totalCPI,
+
+        baselineClock:
+            baseClock,
+
+        optionA:
+            speedupA,
+
+        optionB:
+            speedupB,
+
+        optionC:
+            speedupC,
+
+        best:
+            best
+
+    };
+
+
+    document.getElementById(
+        "challengeA"
+    ).textContent =
+        speedupA.toFixed(3) + "×";
+
+
+    document.getElementById(
+        "challengeB"
+    ).textContent =
+        speedupB.toFixed(3) + "×";
+
+
+    document.getElementById(
+        "challengeC"
+    ).textContent =
+        speedupC.toFixed(3) + "×";
+
+
+    document.getElementById(
+        "bestOption"
+    ).textContent =
+        best;
+
+
+    document.getElementById(
+        "challengeExplanation"
+    ).innerHTML = `
+
+        <strong>
+            Recommended Architecture:
+            ${best}
+        </strong>
+
+        <br><br>
+
+        Baseline CPI including branch penalties:
+        ${totalCPI.toFixed(3)}
+
+        <br><br>
+
+        Option A Speedup:
+        ${speedupA.toFixed(3)}×
+
+        <br>
+
+        Option B Speedup:
+        ${speedupB.toFixed(3)}×
+
+        <br>
+
+        Option C Speedup:
+        ${speedupC.toFixed(3)}×
+
+        <br><br>
+
+        The recommended option is the one that
+        produces the largest quantitative reduction
+        in execution time.
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   GRAPH DRAWING
+===================================================== */
+
+function drawChart(
+    canvasId,
+    labels,
+    values,
+    xLabel,
+    yLabel
+) {
+
+    const canvas =
+        document.getElementById(
+            canvasId
+        );
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    const ratio =
+        window.devicePixelRatio ||
+        1;
+
+
+    const width =
+        canvas.clientWidth;
+
+
+    const height =
+        canvas.clientHeight;
+
+
+    canvas.width =
+        width * ratio;
+
+
+    canvas.height =
+        height * ratio;
+
+
+    ctx.setTransform(
+        ratio,
+        0,
+        0,
+        ratio,
+        0,
+        0
+    );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const margin =
+        70;
+
+
+    const plotWidth =
+        width -
+        margin -
+        30;
+
+
+    const plotHeight =
+        height -
+        margin -
+        40;
+
+
+    const maxValue =
+        Math.max(
+            ...values
+        ) * 1.2;
+
+
+    /*
+        Axes
+    */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        margin,
+        30
+    );
+
+    ctx.lineTo(
+        margin,
+        height - margin
+    );
+
+    ctx.lineTo(
+        width - 30,
+        height - margin
+    );
+
+    ctx.stroke();
+
+
+    /*
+        Bars
+    */
+
+    const barWidth =
+        plotWidth /
+        values.length *
+        0.55;
+
+
+    values.forEach(
+        (value, index) => {
+
+            const centerX =
+                margin +
+                (
+                    index + 0.5
+                ) *
+                (
+                    plotWidth /
+                    values.length
+                );
+
+
+            const barHeight =
+                (
+                    value /
+                    maxValue
+                ) *
+                plotHeight;
+
+
+            const x =
+                centerX -
+                barWidth / 2;
+
+
+            const y =
+                height -
+                margin -
+                barHeight;
+
+
+            ctx.fillRect(
+                x,
+                y,
+                barWidth,
+                barHeight
+            );
+
+
+            ctx.font =
+                "bold 13px Arial";
+
+
+            ctx.fillText(
+                value.toFixed(2),
+                centerX - 15,
+                y - 8
+            );
+
+
+            ctx.font =
+                "13px Arial";
+
+
+            ctx.fillText(
+                labels[index],
+                centerX - 35,
+                height -
+                margin +
+                25
+            );
+
+        }
+    );
+
+
+    /*
+        Axis labels
+    */
+
+    ctx.font =
+        "bold 14px Arial";
+
+
+    ctx.fillText(
+        xLabel,
+        width / 2 - 40,
+        height - 10
+    );
+
+
+    ctx.save();
+
+
+    ctx.translate(
+        18,
+        height / 2
+    );
+
+
+    ctx.rotate(
+        -Math.PI / 2
+    );
+
+
+    ctx.fillText(
+        yLabel,
+        0,
+        0
+    );
+
+
+    ctx.restore();
+
+}
+
+
+
+/* =====================================================
+   EXPORT
+===================================================== */
+
+async function exportLab2() {
+
+
+    /*
+        Run experiments if needed.
+    */
+
+    if (
+        Object.keys(
+            pipelineResults
+        ).length === 0
+    ) {
+
+        runPipelineExperiment();
+
+    }
+
+
+    if (
+        Object.keys(
+            hazardResults
+        ).length === 0
+    ) {
+
+        runHazardExperiment();
+
+    }
+
+
+    if (
+        Object.keys(
+            branchResults
+        ).length === 0
+    ) {
+
+        runBranchExperiment();
+
+    }
+
+
+    if (
+        Object.keys(
+            challengeResults
+        ).length === 0
+    ) {
+
+        runArchitectChallenge();
+
+    }
+
+
+    const zip =
+        new JSZip();
+
+
+    /* =====================================
+       CSV
+    ===================================== */
+
+    let csv =
+        "QUANTITATIVE COMPUTER ARCHITECTURE - LAB 2\n\n";
+
+
+    csv +=
+        "EXPERIMENT 1 - PIPELINE TIMING\n";
+
+
+    csv +=
+        "Parameter,Value\n";
+
+
+    csv +=
+        "Instructions," +
+        pipelineResults.instructions +
+        "\n";
+
+
+    csv +=
+        "Pipeline Stages," +
+        pipelineResults.stages +
+        "\n";
+
+
+    csv +=
+        "Base CPI," +
+        pipelineResults.baseCPI +
+        "\n";
+
+
+    csv +=
+        "Non-Pipelined Cycles," +
+        pipelineResults.nonPipelinedCycles +
+        "\n";
+
+
+    csv +=
+        "Pipelined Cycles," +
+        pipelineResults.pipelinedCycles +
+        "\n";
+
+
+    csv +=
+        "Speedup," +
+        pipelineResults.speedup +
+        "\n";
+
+
+    csv +=
+        "Throughput," +
+        pipelineResults.throughput +
+        "\n\n";
+
+
+    csv +=
+        "EXPERIMENT 2 - PIPELINE HAZARDS\n";
+
+
+    csv +=
+        "Parameter,Value\n";
+
+
+    csv +=
+        "Instructions," +
+        hazardResults.instructions +
+        "\n";
+
+
+    csv +=
+        "Hazard Frequency," +
+        hazardResults.frequency +
+        "\n";
+
+
+    csv +=
+        "Stall Penalty," +
+        hazardResults.penalty +
+        "\n";
+
+
+    csv +=
+        "Forwarding," +
+        hazardResults.forwarding +
+        "\n";
+
+
+    csv +=
+        "Hazard Detection," +
+        hazardResults.detection +
+        "\n";
+
+
+    csv +=
+        "Stall Cycles," +
+        hazardResults.stalls +
+        "\n";
+
+
+    csv +=
+        "Effective CPI," +
+        hazardResults.cpi +
+        "\n\n";
+
+
+    csv +=
+        "EXPERIMENT 3 - BRANCH PREDICTION\n";
+
+
+    csv +=
+        "Parameter,Value\n";
+
+
+    csv +=
+        "Strategy," +
+        branchResults.strategy +
+        "\n";
+
+
+    csv +=
+        "Branch Penalty," +
+        branchResults.penalty +
+        "\n";
+
+
+    csv +=
+        "Total Branches," +
+        branchResults.total +
+        "\n";
+
+
+    csv +=
+        "Correct Predictions," +
+        branchResults.correct +
+        "\n";
+
+
+    csv +=
+        "Mispredictions," +
+        branchResults.incorrect +
+        "\n";
+
+
+    csv +=
+        "Accuracy," +
+        branchResults.accuracy +
+        "\n";
+
+
+    csv +=
+        "Misprediction Rate," +
+        branchResults.mispredictionRate +
+        "\n\n";
+
+
+    csv +=
+        "EXPERIMENT 4 - ARCHITECT'S CHALLENGE\n";
+
+
+    csv +=
+        "Option,Speedup\n";
+
+
+    csv +=
+        "Option A," +
+        challengeResults.optionA +
+        "\n";
+
+
+    csv +=
+        "Option B," +
+        challengeResults.optionB +
+        "\n";
+
+
+    csv +=
+        "Option C," +
+        challengeResults.optionC +
+        "\n";
+
+
+    csv +=
+        "Recommended Option," +
+        challengeResults.best +
+        "\n";
+
+
+    zip.file(
+        "Lab2_Results.csv",
+        csv
+    );
+
+
+    /* =====================================
+       GRAPHS
+    ===================================== */
+
+    const graphs = [
+
+        {
+            id:
+                "hazardChart",
+
+            name:
+                "Hazard_CPI_Graph.png"
+        },
+
+        {
+            id:
+                "predictionChart",
+
+            name:
+                "Branch_Prediction_Graph.png"
+        }
+
+    ];
+
+
+    for (
+        const graph of graphs
+    ) {
+
+        const canvas =
+            document.getElementById(
+                graph.id
+            );
+
+
+        const image =
+            canvas.toDataURL(
+                "image/png"
+            );
+
+
+        const base64 =
+            image.split(
+                ","
+            )[1];
+
+
+        zip.file(
+            graph.name,
+            base64,
+            {
+                base64: true
+            }
+        );
+
+    }
+
+
+    /* =====================================
+       PIPELINE GRAPH
+    ===================================== */
+
+    const pipelineCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    pipelineCanvas.width =
+        1200;
+
+
+    pipelineCanvas.height =
+        500;
+
+
+    const pctx =
+        pipelineCanvas.getContext(
+            "2d"
+        );
+
+
+    pctx.fillStyle =
+        "white";
+
+
+    pctx.fillRect(
+        0,
+        0,
+        pipelineCanvas.width,
+        pipelineCanvas.height
+    );
+
+
+    pctx.fillStyle =
+        "#17365d";
+
+
+    pctx.font =
+        "bold 22px Arial";
+
+
+    pctx.fillText(
+        "Pipeline Timing Summary",
+        40,
+        40
+    );
+
+
+    pctx.font =
+        "16px Arial";
+
+
+    pctx.fillText(
+        "Instructions: " +
+        pipelineResults.instructions,
+        40,
+        80
+    );
+
+
+    pctx.fillText(
+        "Pipeline Stages: " +
+        pipelineResults.stages,
+        40,
+        110
+    );
+
+
+    pctx.fillText(
+        "Non-Pipelined Cycles: " +
+        pipelineResults.nonPipelinedCycles.toFixed(2),
+        40,
+        140
+    );
+
+
+    pctx.fillText(
+        "Pipelined Cycles: " +
+        pipelineResults.pipelinedCycles.toFixed(2),
+        40,
+        170
+    );
+
+
+    pctx.fillText(
+        "Speedup: " +
+        pipelineResults.speedup.toFixed(3) +
+        "×",
+        40,
+        200
+    );
+
+
+    const pipelineImage =
+        pipelineCanvas.toDataURL(
+            "image/png"
+        );
+
+
+    zip.file(
+        "Pipeline_Timing_Graph.png",
+        pipelineImage.split(",")[1],
+        {
+            base64: true
+        }
+    );
+
+
+    /* =====================================
+       SUMMARY
+    ===================================== */
+
+    const timestamp =
+        new Date()
+        .toLocaleString();
+
+
+    const summary = `
+
+QUANTITATIVE COMPUTER ARCHITECTURE
+
+LAB 2
+PIPELINING & BRANCH PREDICTION
+
+Generated:
+${timestamp}
+
+
+========================================
+EXPERIMENT 1 — PIPELINE TIMING
+========================================
+
+Instructions:
+${pipelineResults.instructions}
+
+Pipeline Stages:
+${pipelineResults.stages}
+
+Base CPI:
+${pipelineResults.baseCPI}
+
+Non-Pipelined Cycles:
+${pipelineResults.nonPipelinedCycles.toFixed(3)}
+
+Pipelined Cycles:
+${pipelineResults.pipelinedCycles.toFixed(3)}
+
+Pipeline Speedup:
+${pipelineResults.speedup.toFixed(3)}×
+
+Throughput:
+${pipelineResults.throughput.toFixed(3)}
+instructions/cycle
+
+
+========================================
+EXPERIMENT 2 — PIPELINE HAZARDS
+========================================
+
+Hazard Frequency:
+${(
+    hazardResults.frequency *
+    100
+).toFixed(1)}%
+
+Stall Penalty:
+${hazardResults.penalty}
+
+Forwarding:
+${hazardResults.forwarding}
+
+Hazard Detection:
+${hazardResults.detection}
+
+Stall Cycles:
+${hazardResults.stalls.toFixed(3)}
+
+Effective CPI:
+${hazardResults.cpi.toFixed(3)}
+
+
+========================================
+EXPERIMENT 3 — BRANCH PREDICTION
+========================================
+
+Strategy:
+${branchResults.strategy}
+
+Total Branches:
+${branchResults.total}
+
+Correct Predictions:
+${branchResults.correct}
+
+Mispredictions:
+${branchResults.incorrect}
+
+Prediction Accuracy:
+${branchResults.accuracy.toFixed(2)}%
+
+Misprediction Rate:
+${branchResults.mispredictionRate.toFixed(2)}%
+
+
+========================================
+EXPERIMENT 4 — ARCHITECT'S CHALLENGE
+========================================
+
+Option A Speedup:
+${challengeResults.optionA.toFixed(3)}×
+
+Option B Speedup:
+${challengeResults.optionB.toFixed(3)}×
+
+Option C Speedup:
+${challengeResults.optionC.toFixed(3)}×
+
+Recommended Option:
+${challengeResults.best}
+
+
+========================================
+FILES INCLUDED
+========================================
+
+Lab2_Results.csv
+
+Pipeline_Timing_Graph.png
+
+Hazard_CPI_Graph.png
+
+Branch_Prediction_Graph.png
+
+Lab2_Summary.txt
+
+`;
+
+
+    zip.file(
+        "Lab2_Summary.txt",
+        summary
+    );
+
+
+    /* =====================================
+       DOWNLOAD ZIP
+    ===================================== */
+
+    const blob =
+        await zip.generateAsync({
+            type: "blob"
+        });
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "Lab2_Pipelining_Branch_Prediction_Results.zip";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    document.body.removeChild(
+        link
+    );
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+/* =====================================================
+   INITIALIZATION
+===================================================== */
+
+runPipelineExperiment();
+
+</script>
+
+</body>
+
+</html>
