@@ -436,7 +436,52 @@ footer {
     color: #64748b;
 }
 
+
+/* Editable register controls */
+.register-editor {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+.operand-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.operand-group label {
+    font-size: 11px;
+    color: #64748b;
+    margin: 0;
+}
+.operand-group select {
+    padding: 6px;
+    font-size: 13px;
+}
+.instruction-main {
+    min-width: 0;
+}
+.register-help {
+    font-size: 12px;
+    color: #475569;
+    margin: 8px 0 0;
+}
+.hazard-badge {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #fff1f1;
+    color: #9b1c1c;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 6px;
+}
 @media(max-width: 800px) {
+
 
     .layout {
         grid-template-columns: 1fr;
@@ -511,6 +556,18 @@ EXPERIMENT 1
 Drag instructions from the palette into the processor program.
 You may reorder instructions by dragging them within the program.
 </p>
+
+<div class="info">
+<strong>New: Editable Registers</strong><br>
+Each instruction has editable register operands. Change the destination
+and source registers to intentionally create or eliminate RAW dependencies.
+The simulator uses the registers you select—not a fixed instruction template—
+when calculating hazards, stalls, forwarding, and CPI.
+<p class="register-help">
+<strong>Tip:</strong> Try changing only one register and then re-run the simulation.
+Observe how the dependency table and pipeline timing change.
+</p>
+</div>
 
 <div class="layout">
 
@@ -1331,20 +1388,92 @@ programArea.addEventListener(
    ADD INSTRUCTION
 ========================================================== */
 
+function createInstruction(type, overrides = {}) {
+
+    const def = INSTRUCTIONS[type];
+    const defaults = {
+        ADD: { reads: ["R2", "R3"], writes: ["R1"] },
+        SUB: { reads: ["R2", "R3"], writes: ["R1"] },
+        AND: { reads: ["R2", "R3"], writes: ["R1"] },
+        OR:  { reads: ["R2", "R3"], writes: ["R1"] },
+        LW:  { reads: ["R2"], writes: ["R1"] },
+        SW:  { reads: ["R1", "R2"], writes: [] },
+        BEQ: { reads: ["R1", "R2"], writes: [] },
+        BNE: { reads: ["R1", "R2"], writes: [] }
+    }[type];
+
+    const base = {
+        id: Date.now() + Math.random(),
+        type: type,
+        reads: [...defaults.reads],
+        writes: [...defaults.writes]
+    };
+
+    return Object.assign(base, overrides);
+}
+
 function addInstruction(type) {
-
-    program.push({
-
-        id:
-            Date.now() +
-            Math.random(),
-
-        type: type
-
-    });
-
+    program.push(createInstruction(type));
     renderProgram();
+}
 
+function registerOptions(selected) {
+    const registers = Array.from({length: 16}, (_, i) => `R${i}`);
+    return registers.map(r => `<option value="${r}" ${r === selected ? "selected" : ""}>${r}</option>`).join("");
+}
+
+function operandEditor(instruction, index) {
+    const r = instruction.reads || [];
+    const w = instruction.writes || [];
+    const t = instruction.type;
+    let html = '<div class="register-editor">';
+
+    if (["ADD","SUB","AND","OR"].includes(t)) {
+        html += `<div class="operand-group"><label>Destination</label><select onchange="updateRegister(${index}, 'write', 0, this.value)">${registerOptions(w[0] || "R1")}</select></div>`;
+        html += `<div class="operand-group"><label>Source 1</label><select onchange="updateRegister(${index}, 'read', 0, this.value)">${registerOptions(r[0] || "R2")}</select></div>`;
+        html += `<div class="operand-group"><label>Source 2</label><select onchange="updateRegister(${index}, 'read', 1, this.value)">${registerOptions(r[1] || "R3")}</select></div>`;
+    } else if (t === "LW") {
+        html += `<div class="operand-group"><label>Destination</label><select onchange="updateRegister(${index}, 'write', 0, this.value)">${registerOptions(w[0] || "R1")}</select></div>`;
+        html += `<div class="operand-group"><label>Base Register</label><select onchange="updateRegister(${index}, 'read', 0, this.value)">${registerOptions(r[0] || "R2")}</select></div>`;
+    } else if (t === "SW") {
+        html += `<div class="operand-group"><label>Data Register</label><select onchange="updateRegister(${index}, 'read', 0, this.value)">${registerOptions(r[0] || "R1")}</select></div>`;
+        html += `<div class="operand-group"><label>Base Register</label><select onchange="updateRegister(${index}, 'read', 1, this.value)">${registerOptions(r[1] || "R2")}</select></div>`;
+    } else if (["BEQ","BNE"].includes(t)) {
+        html += `<div class="operand-group"><label>Compare Register 1</label><select onchange="updateRegister(${index}, 'read', 0, this.value)">${registerOptions(r[0] || "R1")}</select></div>`;
+        html += `<div class="operand-group"><label>Compare Register 2</label><select onchange="updateRegister(${index}, 'read', 1, this.value)">${registerOptions(r[1] || "R2")}</select></div>`;
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function updateRegister(index, kind, position, value) {
+    if (!program[index]) return;
+    if (kind === 'read') {
+        if (!program[index].reads) program[index].reads = [];
+        program[index].reads[position] = value;
+    } else {
+        if (!program[index].writes) program[index].writes = [];
+        program[index].writes[position] = value;
+    }
+    renderProgram();
+    renderRegisterTable();
+}
+
+function getAssembly(instruction) {
+    const r = instruction.reads || [];
+    const w = instruction.writes || [];
+    switch (instruction.type) {
+        case "ADD": return `ADD ${w[0]}, ${r[0]}, ${r[1]}`;
+        case "SUB": return `SUB ${w[0]}, ${r[0]}, ${r[1]}`;
+        case "AND": return `AND ${w[0]}, ${r[0]}, ${r[1]}`;
+        case "OR":  return `OR ${w[0]}, ${r[0]}, ${r[1]}`;
+        case "LW":  return `LW ${w[0]}, 0(${r[0]})`;
+        case "SW":  return `SW ${r[0]}, 0(${r[1]})`;
+        case "BEQ": return `BEQ ${r[0]}, ${r[1]}, LOOP`;
+        case "BNE": return `BNE ${r[0]}, ${r[1]}, LOOP`;
+        default: return INSTRUCTIONS[instruction.type].assembly;
+    }
 }
 
 
@@ -1353,156 +1482,49 @@ function addInstruction(type) {
 ========================================================== */
 
 function renderProgram() {
-
-    const area =
-        document.getElementById(
-            "programArea"
-        );
+    const area = document.getElementById("programArea");
 
     if (program.length === 0) {
-
-        area.innerHTML = `
-
-            <div
-                id="dropMessage"
-                class="drop-message"
-            >
-                Drag instructions here to build your program.
-            </div>
-
-        `;
-
+        area.innerHTML = `<div id="dropMessage" class="drop-message">Drag instructions here to build your program.</div>`;
+        renderRegisterTable();
         return;
-
     }
-
 
     area.innerHTML = "";
 
+    program.forEach((instruction, index) => {
+        const def = INSTRUCTIONS[instruction.type];
+        const row = document.createElement("div");
+        row.className = "program-instruction";
+        row.draggable = true;
+        row.dataset.index = index;
 
-    program.forEach(
-        (instruction, index) => {
+        row.innerHTML = `
+            <div class="line-number">${index + 1}</div>
+            <div class="opcode">${def.name}</div>
+            <div class="instruction-main">
+                <div class="assembly">${getAssembly(instruction)}</div>
+                ${operandEditor(instruction, index)}
+            </div>
+            <button class="delete-btn" onclick="removeInstruction(${index})">×</button>
+        `;
 
-            const def =
-                INSTRUCTIONS[
-                    instruction.type
-                ];
+        row.addEventListener("dragstart", e => {
+            row.classList.add("dragging");
+            e.dataTransfer.setData("program-index", index);
+        });
+        row.addEventListener("dragend", () => row.classList.remove("dragging"));
+        row.addEventListener("dragover", e => e.preventDefault());
+        row.addEventListener("drop", e => {
+            e.preventDefault();
+            const from = Number(e.dataTransfer.getData("program-index"));
+            if (!Number.isNaN(from)) moveInstruction(from, index);
+        });
 
+        area.appendChild(row);
+    });
 
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-
-            row.className =
-                "program-instruction";
-
-
-            row.draggable = true;
-
-
-            row.dataset.index =
-                index;
-
-
-            row.innerHTML = `
-
-                <div class="line-number">
-                    ${index + 1}
-                </div>
-
-                <div class="opcode">
-                    ${def.name}
-                </div>
-
-                <div class="assembly">
-                    ${def.assembly}
-                </div>
-
-                <button
-                    class="delete-btn"
-                    onclick="removeInstruction(${index})"
-                >
-                    ×
-                </button>
-
-            `;
-
-
-            row.addEventListener(
-                "dragstart",
-                e => {
-
-                    row.classList.add(
-                        "dragging"
-                    );
-
-                    e.dataTransfer.setData(
-                        "program-index",
-                        index
-                    );
-
-                }
-            );
-
-
-            row.addEventListener(
-                "dragend",
-                () => {
-
-                    row.classList.remove(
-                        "dragging"
-                    );
-
-                }
-            );
-
-
-            row.addEventListener(
-                "dragover",
-                e => {
-
-                    e.preventDefault();
-
-                }
-            );
-
-
-            row.addEventListener(
-                "drop",
-                e => {
-
-                    e.preventDefault();
-
-                    const from =
-                        Number(
-                            e.dataTransfer.getData(
-                                "program-index"
-                            )
-                        );
-
-
-                    if (
-                        !Number.isNaN(from)
-                    ) {
-
-                        moveInstruction(
-                            from,
-                            index
-                        );
-
-                    }
-
-                }
-            );
-
-
-            area.appendChild(row);
-
-        }
-    );
-
+    renderRegisterTable();
 }
 
 
@@ -1559,64 +1581,33 @@ function moveInstruction(
 ========================================================== */
 
 function loadExample(type) {
-
     if (type === "dependent") {
-
         program = [
-
-            { type: "ADD" },
-            { type: "SUB" },
-            { type: "AND" },
-            { type: "OR" }
-
+            createInstruction("ADD", {reads:["R2","R3"], writes:["R1"]}),
+            createInstruction("SUB", {reads:["R1","R4"], writes:["R5"]}),
+            createInstruction("AND", {reads:["R5","R6"], writes:["R7"]}),
+            createInstruction("OR",  {reads:["R7","R8"], writes:["R9"]})
         ];
-
     }
-
-
     if (type === "independent") {
-
         program = [
-
-            { type: "ADD" },
-            { type: "SUB" },
-            { type: "AND" },
-            { type: "OR" }
-
+            createInstruction("ADD", {reads:["R2","R3"], writes:["R1"]}),
+            createInstruction("SUB", {reads:["R10","R11"], writes:["R12"]}),
+            createInstruction("AND", {reads:["R4","R5"], writes:["R6"]}),
+            createInstruction("OR",  {reads:["R13","R14"], writes:["R15"]})
         ];
-
-        /*
-            Make independent operands
-            by changing the instruction
-            definitions temporarily through
-            the simulation model.
-        */
-
     }
-
-
     if (type === "loaduse") {
-
         program = [
-
-            { type: "LW" },
-            { type: "ADD" },
-            { type: "SUB" },
-            { type: "OR" }
-
+            createInstruction("LW", {reads:["R2"], writes:["R1"]}),
+            createInstruction("ADD", {reads:["R1","R3"], writes:["R4"]}),
+            createInstruction("SUB", {reads:["R4","R5"], writes:["R6"]}),
+            createInstruction("OR",  {reads:["R6","R7"], writes:["R8"]})
         ];
-
     }
-
-
-    originalProgram =
-        JSON.parse(
-            JSON.stringify(program)
-        );
-
-
+    originalProgram = JSON.parse(JSON.stringify(program));
     renderProgram();
-
+    resetDisplays();
 }
 
 
@@ -1658,13 +1649,13 @@ function getRegisterInfo(
             index + 1,
 
         instruction:
-            def.assembly,
+            getAssembly(instruction),
 
         reads:
-            def.reads,
+            instruction.reads || [],
 
         writes:
-            def.writes,
+            instruction.writes || [],
 
         memory:
             def.memory
@@ -1689,10 +1680,7 @@ function detectHazards() {
         i++
     ) {
 
-        const current =
-            INSTRUCTIONS[
-                program[i].type
-            ];
+        const current = program[i];
 
 
         for (
@@ -1701,10 +1689,7 @@ function detectHazards() {
             j++
         ) {
 
-            const previous =
-                INSTRUCTIONS[
-                    program[j].type
-                ];
+            const previous = program[j];
 
 
             previous.writes.forEach(
@@ -2174,10 +2159,7 @@ function detectHazardsForProgram(
         i++
     ) {
 
-        const current =
-            INSTRUCTIONS[
-                activeProgram[i].type
-            ];
+        const current = activeProgram[i];
 
 
         for (
@@ -2186,10 +2168,7 @@ function detectHazardsForProgram(
             j++
         ) {
 
-            const previous =
-                INSTRUCTIONS[
-                    activeProgram[j].type
-                ];
+            const previous = activeProgram[j];
 
 
             previous.writes.forEach(
@@ -3706,17 +3685,13 @@ async function exportLab2() {
     program.forEach(
         (instruction, index) => {
 
-            const def =
-                INSTRUCTIONS[
-                    instruction.type
-                ];
-
+            const def = INSTRUCTIONS[instruction.type];
 
             programCSV +=
                 `${index + 1},` +
-                `${def.name},` +
-                `"${def.reads.join(";")}",` +
-                `"${def.writes.join(";")}",` +
+                `${getAssembly(instruction)},` +
+                `"${(instruction.reads || []).join(";")}",` +
+                `"${(instruction.writes || []).join(";")}",` +
                 `${def.memory}\n`;
 
         }
@@ -3755,6 +3730,12 @@ async function exportLab2() {
         hazardCSV
     );
 
+    let registerCSV = "Instruction,Assembly,Registers Read,Registers Written\n";
+    program.forEach((instruction, index) => {
+        registerCSV += `${index + 1},"${getAssembly(instruction)}","${(instruction.reads || []).join(";")}","${(instruction.writes || []).join(";")}"\n`;
+    });
+    zip.file("editable_register_analysis.csv", registerCSV);
+
 
     /*
         Summary
@@ -3774,9 +3755,7 @@ INSTRUCTION SEQUENCE
 ${program.map(
     (instruction, i) =>
         `${i + 1}. ${
-            INSTRUCTIONS[
-                instruction.type
-            ].assembly
+            getAssembly(instruction)
         }`
 ).join("\n")}
 
